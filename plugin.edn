@@ -1,0 +1,6 @@
+{:name "aleph"
+ :version "0.0.1-SNAPSHOT"
+ :author "ndr-qef"
+ :source "https://github.com/ndr-qef/light-aleph"
+ :desc ""
+ :behaviors "aleph.behaviors"}
