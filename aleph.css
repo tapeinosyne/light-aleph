@@ -1,0 +1,74 @@
+/*
+===============================================================================
+    Layout
+-------------------------------------------------------------------------------
+*/
+
+.aleph-browser {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-content: flex-start;
+  align-items: center;
+  height: 100%;
+}
+
+.aleph-column {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-content: flex-start;
+  align-items: flex-start;
+}
+
+.aleph-filter {
+  background-color: #333;
+  flex-basis: 32%;
+}
+
+.aleph-filter .filter-list {
+  padding: 0.5rem;
+}
+
+.aleph-filter .filter-list > ul {
+  overflow: auto;
+  max-height: 100%;
+}
+
+.aleph-filter .filter-list > ul > li {
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+}
+
+.aleph-filter .filter-list > input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+
+
+/*
+===============================================================================
+    Typography
+-------------------------------------------------------------------------------
+*/
+
+.aleph-filter .filter-list h2 {
+  font-size: 0.875rem;
+}
+
+.aleph-filter .filter-list p {
+  font-size: 0.625rem;
+}
+
+/*
+===============================================================================
+    Fancification
+-------------------------------------------------------------------------------
+*/
+
+.aleph-filter {
+  border-radius: 4px;
+}
