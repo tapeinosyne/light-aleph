@@ -1,0 +1,13 @@
+{:+ {:app [(:lt.objs.plugins/load-js "aleph_compiled.js")
+           (:lt.objs.plugins/load-css "aleph.css")]
+
+     :aleph.browser [:lt.plugins.aleph/on-close]
+
+     :aleph.sub [:lt.plugins.aleph/propagate!
+                 :lt.plugins.aleph/relate
+                 :lt.plugins.aleph/reset!]
+
+     :aleph.selector [:lt.plugins.aleph/update-sub
+                      :lt.plugins.aleph/re-list]}
+
+ :- {:aleph.selector [:lt.objs.sidebar.command/update-lis]}}
