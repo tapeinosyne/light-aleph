@@ -52,8 +52,8 @@
   (:tags @o))
 
 (defn o->t
-  "Given a sequence of objects ids, returns a list of its tags as keys associated
-   to their behaviors."
+  "Given a sequence of objects ids, returns a list of their tags as keys associated
+   to the respective behaviors."
   [ids]
   (let [os (map object/by-id ids)
         t-keys (distinct (mapcat o->t* os))
@@ -61,7 +61,7 @@
     (zipmap t-keys t-vals)))
 
 (defn o->b*
-  "Given an object instance, returns a list of its behaviors' names."
+  "Given an object instance, returns a list of the associated behaviors' names."
   [o]
   (let [listeners (:listeners @o)
         behs (vals listeners)]
@@ -79,7 +79,9 @@
 
 ;;; tag to object/behavior
 
-(defn ->behavior [beh]
+(defn ->behavior
+  "Given a behavior name, returns the full behavior map."
+  [beh]
   ;; review: drop the metadata and use a normal keyval
   (if (coll? beh)
     (with-meta (@object/behaviors (first beh)) {:with-args (into [] (rest beh))})
@@ -88,7 +90,7 @@
 (defn t->b
   "Given a sequence of tags, returns a list of the associated behaviors.
    Arguments passed by a tag will be stored as metadata `:with-args [args]`
-   in the entry for the associated behavior."
+   in the entry for the respective behavior."
   [ts]
   (map ->behavior (object/tags->behaviors ts)))
 
@@ -104,8 +106,18 @@
 ;;;; Searchable lists to be displayed in the Aleph browser.
 ;;;;___________________________________________________________________________
 
-(defn type* [obj]
+(defn type*
+  "Given an object instance, returns its type as an unqualified keyword."
+  [obj]
   (keyword (name (:lt.object/type @obj))))
+
+(defn extract-keys
+  "Given an Aleph filter-list, extract the current results into a list
+   of items compatible with relator functions."
+  [f-l]
+  (let [cur (:cur @f-l)
+        k (::relate-by @f-l)]
+    (map k (filter map? (apply concat cur)))))
 
 (behavior ::update-sub
           :triggers #{:refresh!}
@@ -196,13 +208,6 @@
 ;;;; Manage BOT lists and propagation of results.
 ;;;;___________________________________________________________________________
 
-(defn extract-keys
-  "Given a filter-list, extract the current items."
-  [f-l]
-  (let [cur (:cur @f-l)
-        k (::relate-by @f-l)]
-    (map k (filter map? (apply concat cur)))))
-
 (behavior ::reset!
           :triggers #{:reset!}
           :reaction (fn [this]
@@ -239,7 +244,10 @@
 
 ;;; sub objects
 
-(defn ->sub [{:keys [el sel rel]}]
+(defn ->sub
+  "Given a map of options {:el element, :sel selector, :rel relators},
+   returns an Aleph subspace object."
+  [{:keys [el sel rel]}]
   ;; review: if no substantial differences between handling of b/o/t emerge,
   ;; consider using native init instead of ->sub.
   (object/object* el
