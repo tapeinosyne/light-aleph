@@ -97,63 +97,96 @@
   [ts]
   (mapcat object/by-tag ts))
 
-(defn t-enlist [t]
- (map #(hash-map :tag (str (key %))
-                 :behaviors (val %)) @t))
 
-(def t-list (scmd/filter-list {:items (t-enlist object/tags)
-                               :key :tag
-                               :placeholder "Tag"}))
+;;;;===========================================================================
+;;;; BOT filter-lists
+;;;;
+;;;; Searchable lists to be displayed in the Aleph browser.
+;;;;___________________________________________________________________________
 
+(defn type* [obj]
+  (keyword (name (:lt.object/type @obj))))
 
-;;;; object to behavior/tag ;;;;
+(behavior ::update-sub
+          :triggers #{:refresh!}
+          :reaction (fn [this]
+                      (object/merge! this {:cur (fl/indexed-results @this)})
+                      (fl/fill-lis @this
+                                   (:cur @this))
+                        (let [super (:super @this)
+                              observed (extract-keys this)]
+                          (object/merge! super {:observing observed})
+                          (object/raise super :propagate!))))
 
-(defn o->t
-  "Given an object instance, returns its tags."
-  [o]
-  (:tags @o))
+(behavior ::re-list
+          :triggers #{:re-list}
+          :reaction (fn [this]
+                      (object/merge! this {:cur (fl/indexed-results @this)})
+                      (fl/fill-lis @this
+                                (:cur @this))))
 
-(defn o->b
-  "Given an object instance, return the associated behaviors."
-  [o]
-  (mapcat t->b (o->t o)))
-
-(defn o-enlist [o]
-  (map #(hash-map :type (-> % val deref :lt.object/type str)
-                  :tags (-> % val deref :tags)
-                  :listeners (-> % val deref :listeners)) @o))
-
-(def o-list (scmd/filter-list {:items (o-enlist object/instances)
-                               :key :type
-                               :placeholder "Object"}))
-
-
-;;;; behavior to object/tag ;;;;
-
-(defn beh-k|coll?
-  ;; todo: make this more readable
-  [b]
-  (if (coll? b)
-    (fn [t] (some #(= b %) (val t)))
-    (fn [t] (some #(= b %) (map #(if (coll? %)
-                                   (first %)
-                                   %)
-                                (val t))))))
-
-(defn b->t [b]
-  (->> @object/tags
-       (filter (beh-k|coll? b))
-       (into {})))
-
-(defn b->o [b]
-  (mapcat #(object/by-tag %) (keys (b->t b))))
 
 ;;; behavior filter-list
 
 (defn b-enlist [b]
-  (map #(hash-map :name (str (:name %))
-                  :triggers (:triggers %)) (vals @b)))
+  (map #(hash-map ::index-by (str (:name %))
+                  :name (:name %)
+                  :triggers (:triggers %)) b))
 
-(def b-list (scmd/filter-list {:items (b-enlist object/behaviors)
-                               :key :name
-                               :placeholder "Behaviors"}))
+(defn b-itemize []
+  (fn [original scored highlighted item]
+    (str "<h2>" highlighted "</h2><p>" (:triggers item) "</p>")))
+
+(def b-list (fl/filter-list {:items (b-enlist (vals @object/behaviors))
+                             :key ::index-by
+                             :transform (b-itemize)
+                             :placeholder "Behaviors"
+                             ::relate-by :name
+                             ::list-fn b-enlist
+                             ::starter-items (fn []
+                                               (vals @object/behaviors))}))
+
+
+;;; object filter-list
+
+(defn o-enlist [o]
+  (map #(hash-map ::index-by (-> @% :lt.object/type str)
+                  :lt.object/type (-> @% :lt.object/type)
+                  :lt.object/id (-> @% :lt.object/id)
+                  :tags (-> @% :tags)
+                  :listeners (-> @% :listeners)) o))
+
+(defn o-itemize []
+  (fn [original scored highlighted item]
+    (str "<h2>" highlighted "</h2><p>" (:lt.object/id item) "</p>")))
+
+(def o-list (fl/filter-list {:items (o-enlist (vals @object/instances))
+                             :key ::index-by
+                             :transform (o-itemize)
+                             :placeholder "Object"
+                             ::relate-by :lt.object/id
+                             ::list-fn o-enlist
+                             ::starter-items (fn []
+                                               (vals @object/instances))}))
+
+
+;;; tag filter-list
+
+(defn t-enlist [t]
+ (map #(hash-map ::index-by (str (key %))
+                 :tag (key %)
+                 :behaviors (val %)) t))
+
+(defn t-itemize []
+  (fn [original scored highlighted item]
+    (str "<h2>" highlighted "</h2><p>" (:behaviors item) "</p>")))
+
+(def t-list (fl/filter-list {:items (t-enlist @object/tags)
+                             :key ::index-by
+                             :transform (t-itemize)
+                             :placeholder "Tag"
+                             ::relate-by :tag
+                             ::list-fn t-enlist
+                             ::starter-items (fn [] @object/tags)}))
+
+
