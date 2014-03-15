@@ -272,3 +272,37 @@
 (def subspaces {:b b-sub
                 :o o-sub
                 :t t-sub})
+
+
+;;;;===========================================================================
+;;;; Aleph browser
+;;;;
+;;;; A simple 3-column view of the subspaces
+;;;;___________________________________________________________________________
+
+(behavior ::on-close
+          :triggers #{:close}
+          :reaction (fn [this]
+                      (tab/rem! this)))
+
+(object/object* ::aleph.browser
+                :tags #{:aleph.browser}
+                :name "Aleph"
+                :init (fn [this]
+                        [:div.aleph-browser
+                         [:div.aleph-column
+                          [:div#aleph-behaviors.aleph-filter
+                           (object/->content b-list)]
+                          [:div#aleph-objects.aleph-filter
+                           (object/->content o-list)]
+                          [:div#aleph-tags.aleph-filter
+                           (object/->content t-list)]
+                          ]
+                         ]))
+
+(def browser (object/create ::aleph.browser))
+
+(cmd/command {:command :aleph.browse
+              :desc "Aleph: show browser"
+              :exec (fn []
+                      (tab/add-or-focus! browser))})
