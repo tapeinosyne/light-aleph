@@ -4,7 +4,7 @@
             [lt.objs.command :as cmd]
             [lt.objs.sidebar.command :as fl]
             [clojure.set :as setop]
-            [lt.objs.editor.pool :as pool])
+            [lt.util.dom :as dom])
   (:require-macros [lt.macros :refer [behavior background defui]]))
 
 
@@ -190,3 +190,85 @@
                              ::starter-items (fn [] @object/tags)}))
 
 
+;;;;===========================================================================
+;;;; Aleph subspaces
+;;;;
+;;;; Manage BOT lists and propagation of results.
+;;;;___________________________________________________________________________
+
+(defn extract-keys
+  "Given a filter-list, extract the current items."
+  [f-l]
+  (let [cur (:cur @f-l)
+        k (::relate-by @f-l)]
+    (map k (filter map? (apply concat cur)))))
+
+(behavior ::reset!
+          :triggers #{:reset!}
+          :reaction (fn [this]
+                      (let [selector (:selector @this)
+                            enlist (::list-fn @selector)
+                            starter (::starter-items @selector)]
+                        (object/merge! selector {:items (enlist (starter))})
+                        (object/raise selector :re-list))))
+
+(behavior ::propagate!
+          :triggers #{:propagate!}
+          :debounce 600
+          :reaction (fn [this]
+                      (let [element (type* this)
+                            targets (vals (dissoc subspaces element))
+                            selector (:selector @this)
+                            obs (:observing @this)]
+                        (if (seq (fl/input-val selector))
+                          (doseq [aleph-sub targets]
+                            (object/raise aleph-sub :relate element obs))
+                          (doseq [aleph-sub targets]
+                            (object/raise aleph-sub :reset!))))))
+
+(behavior ::relate
+          :triggers #{:relate}
+          :reaction (fn [this element obs]
+                      (let [selector (:selector @this)
+                            items (:items @selector)
+                            enlist (::list-fn @selector)
+                            relator (-> @this :relator element)
+                            context (relator obs)]
+                        (object/merge! selector {:items (enlist context)})
+                        (object/raise selector :re-list))))
+
+;;; sub objects
+
+(defn ->sub [{:keys [el sel rel]}]
+  ;; review: if no substantial differences between handling of b/o/t emerge,
+  ;; consider using native init instead of ->sub.
+  (object/object* el
+                  :tags #{:aleph.sub}
+                  :observing []
+                  :selector sel
+                  :relator rel
+                  :init (fn [this]
+                          (object/add-tags sel [:aleph.selector])
+                          ;; This could be done without circularity, but this is
+                          ;; the Aleph, after all.
+                          (object/merge! sel {:super this}))))
+
+(->sub {:el ::b
+        :sel b-list
+        :rel {:o o->b :t t->b}})
+
+(->sub {:el ::o
+        :sel o-list
+        :rel {:b b->o :t t->o}})
+
+(->sub {:el ::t
+        :sel t-list
+        :rel {:b b->t :o o->t}})
+
+(def b-sub (object/create ::b))
+(def o-sub (object/create ::o))
+(def t-sub (object/create ::t))
+
+(def subspaces {:b b-sub
+                :o o-sub
+                :t t-sub})
