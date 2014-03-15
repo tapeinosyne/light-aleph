@@ -12,7 +12,7 @@ Alternatively, you can manually clone this repository and place it into your plu
 
 ## Usage
 Only one command is included in the current prerelease:
-#### `Aleph: show browser`
+### `Aleph: show browser`
 The Aleph browser exposes a simple index of the current BOT state.
 
 Each of behaviors, objects, and tags have their own fuzzy-searchable list—akin to the command bar or navigator.  
