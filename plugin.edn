@@ -1,6 +1,6 @@
-{:name "aleph"
- :version "0.0.1-SNAPSHOT"
+{:name "Aleph"
+ :version "0.0.1"
  :author "ndr-qef"
  :source "https://github.com/ndr-qef/light-aleph"
- :desc ""
+ :desc "A BOT browser and introspector. "
  :behaviors "aleph.behaviors"}

@@ -1,2 +1,2 @@
-(defproject aleph "0.0.1-SNAPSHOT"
+(defproject light-aleph "0.0.1"
   :dependencies [[org.clojure/clojure "1.5.1"]])
