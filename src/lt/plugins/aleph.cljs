@@ -219,7 +219,7 @@
 
 (behavior ::propagate!
           :triggers #{:propagate!}
-          :debounce 600
+          :debounce 400
           :reaction (fn [this]
                       (let [element (type* this)
                             targets (vals (dissoc subspaces element))
