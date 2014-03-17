@@ -152,7 +152,7 @@
 (def b-list (fl/filter-list {:items (b-enlist (vals @object/behaviors))
                              :key ::index-by
                              :transform (b-itemize)
-                             :placeholder "Behaviors"
+                             :placeholder "Behavior"
                              ::relate-by :name
                              ::list-fn b-enlist
                              ::starter-items (fn []
