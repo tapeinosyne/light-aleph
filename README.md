@@ -2,6 +2,8 @@ Aleph
 =====
 > “The Aleph?” I repeated.  
 > “Yes, the only place on earth where all places are — seen from every angle, each standing clear, without any confusion or blending.”
+>
+> — Jorge Luis Borges, *The Aleph* 
 
 Aleph is a privileged point of observation on Light Table's inner machinery: a browser for the BOT architecture.
 
