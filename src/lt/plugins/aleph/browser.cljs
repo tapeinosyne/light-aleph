@@ -58,7 +58,7 @@
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:triggers item) "</p>")))
 
-(def b-list (fl/filter-list {:items (b-enlist (vals @object/behaviors))
+(def b-list (fl/filter-list {:items (fn [] (b-enlist (vals @object/behaviors)))
                              :key ::index-by
                              :transform (b-itemize)
                              :placeholder "Behavior"
@@ -81,7 +81,7 @@
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:lt.object/id item) "</p>")))
 
-(def o-list (fl/filter-list {:items (o-enlist (vals @object/instances))
+(def o-list (fl/filter-list {:items (fn [] (o-enlist (vals @object/instances)))
                              :key ::index-by
                              :transform (o-itemize)
                              :placeholder "Object"
@@ -102,7 +102,7 @@
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:behaviors item) "</p>")))
 
-(def t-list (fl/filter-list {:items (t-enlist @object/tags)
+(def t-list (fl/filter-list {:items (fn [] (t-enlist @object/tags))
                              :key ::index-by
                              :transform (t-itemize)
                              :placeholder "Tag"
