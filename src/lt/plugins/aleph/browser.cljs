@@ -28,6 +28,10 @@
         k (::relate-by @f-l)]
     (map k (filter map? (apply concat cur)))))
 
+(defn propagate! [super observed]
+  (object/merge! super {:observing observed})
+  (object/raise super :propagate!))
+
 (behavior ::update-sub
           :triggers #{:refresh!}
           :reaction (fn [this]
@@ -36,8 +40,7 @@
                                    (:cur @this))
                         (let [super (:super @this)
                               observed (extract-keys this)]
-                          (object/merge! super {:observing observed})
-                          (object/raise super :propagate!))))
+                          (propagate! super observed))))
 
 (behavior ::re-list
           :triggers #{:re-list}
