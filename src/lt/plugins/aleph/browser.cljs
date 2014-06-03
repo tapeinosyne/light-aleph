@@ -49,6 +49,14 @@
                       (fl/fill-lis @this
                                 (:cur @this))))
 
+(behavior ::propagate-selection!
+          :triggers #{:select}
+          :reaction (fn [this item]
+                      (let [super (:super @this)
+                            relator (::relate-by @this)
+                            observed [(relator item)]]
+                        (propagate! super observed))))
+
 
 ;;; behavior filter-list
 
