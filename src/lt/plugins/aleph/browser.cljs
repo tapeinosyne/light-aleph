@@ -181,17 +181,17 @@
                           ;; the Aleph, after all.
                           (object/merge! sel {:super this}))))
 
-(->sub {:el ::b
+(->sub {:el  ::b
         :sel b-list
-        :rel {:o o->b :t t->b}})
+        :rel {:o bot/o->b :t bot/t->b}})
 
-(->sub {:el ::o
+(->sub {:el  ::o
         :sel o-list
-        :rel {:b b->o :t t->o}})
+        :rel {:b bot/b->o :t bot/t->o}})
 
-(->sub {:el ::t
+(->sub {:el  ::t
         :sel t-list
-        :rel {:b b->t :o o->t}})
+        :rel {:b bot/b->t+b :o bot/o->t+b}})
 
 (def b-sub (object/create ::b))
 (def o-sub (object/create ::o))
