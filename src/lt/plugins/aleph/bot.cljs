@@ -34,7 +34,7 @@
   (keys (b->t+b bs)))
 
 (defn b->o
-  "Given a sequence of behaviors, returns a list of the objects to which any of
+  "Given a sequence of behaviors, returns a list of the object instances to which any of
    them is associated."
   [bs]
   (let [behs (into #{} bs)
@@ -73,7 +73,8 @@
     (apply concat behs)))
 
 (defn o->b
-  "Given a sequence of object ids, returns a list of the associated behaviors."
+  "Given a sequence of object ids, returns a list of the associated behaviors,
+   including triggers and function definition."
   [ids]
   (let [os (map object/by-id ids)]
     (->> os
