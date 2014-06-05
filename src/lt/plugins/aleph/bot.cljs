@@ -22,7 +22,7 @@
   "Given a sequence of behaviors, returns a map of the associated tags and all
    their behaviors."
   [bs]
-  (let [behs (apply hash-set bs)]
+  (let [behs (into #{} bs)]
     (->> @object/tags
          (filter (fn [t]
                    (some behs (val t))))
@@ -37,7 +37,7 @@
   "Given a sequence of behaviors, returns a list of the objects to which any of
    them is associated."
   [bs]
-  (let [behs (apply hash-set bs)
+  (let [behs (into #{} bs)
         listeners (fn [o]
                     (->> @o :listeners vals (apply concat)))]
     (filter #(some behs (listeners %))
