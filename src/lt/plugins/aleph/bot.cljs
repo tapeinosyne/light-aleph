@@ -88,15 +88,14 @@
 (defn ->behavior
   "Given a behavior name, returns the full behavior map."
   [beh]
-  ;; review: drop the metadata and use a normal keyval
   (if (coll? beh)
-    (with-meta (@object/behaviors (first beh)) {:with-args (into [] (rest beh))})
+    (merge (@object/behaviors (first beh)) {::args (into [] (rest beh))})
     (@object/behaviors beh)))
 
 (defn t->b
   "Given a sequence of tags, returns a list of the associated behaviors.
-   Arguments passed by a tag will be stored as metadata `:with-args [args]`
-   in the entry for the respective behavior."
+   Aguments passed by a tag will be stored in the behavior's entry as kv
+   `:lt.plugins.aleph.bot/args [args]`."
   [ts]
   (map ->behavior (object/tags->behaviors ts)))
 
