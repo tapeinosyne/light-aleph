@@ -87,19 +87,24 @@
 ;;; object filter-list
 
 (defn o-enlist [o]
-  (map #(hash-map ::index-by (-> @% :lt.object/type str)
+  (map #(hash-map ::index-by-type (-> @% :lt.object/type str)
+                  ::index-by-id (-> @% :lt.object/id str)
                   :lt.object/type (-> @% :lt.object/type)
                   :lt.object/id (-> @% :lt.object/id)
                   :tags (-> @% :tags)
                   :listeners (-> @% :listeners)) o))
 
-(defn o-itemize []
+(defn o-itemize-with-type []
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:lt.object/id item) "</p>")))
 
+(defn o-itemize-with-id []
+  (fn [original scored highlighted item]
+    (str "<h2>" (:lt.object/type item) "</h2><p>" highlighted "</p>")))
+
 (def o-list (fl/filter-list {:items (fn [] (o-enlist (vals @object/instances)))
-                             :key ::index-by
-                             :transform (o-itemize)
+                             :key ::index-by-type
+                             :transform (o-itemize-with-type)
                              :placeholder "Object"
                              ::relate-by :lt.object/id
                              ::list-fn o-enlist
