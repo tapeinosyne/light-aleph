@@ -61,17 +61,22 @@
 ;;; behavior filter-list
 
 (defn b-enlist [b]
-  (map #(hash-map ::index-by (str (:name %))
+  (map #(hash-map ::index-by-name (str (:name %))
+                  ::index-by-trigger (str (:triggers %))
                   :name (:name %)
                   :triggers (:triggers %)) b))
 
-(defn b-itemize []
+(defn b-itemize-with-name []
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:triggers item) "</p>")))
 
+(defn b-itemize-with-triggers []
+  (fn [original scored highlighted item]
+    (str "<h2>" (:name item) "</h2><p>" highlighted "</p>")))
+
 (def b-list (fl/filter-list {:items (fn [] (b-enlist (vals @object/behaviors)))
-                             :key ::index-by
-                             :transform (b-itemize)
+                             :key ::index-by-trigger
+                             :transform (b-itemize-with-name)
                              :placeholder "Behavior"
                              ::relate-by :name
                              ::list-fn b-enlist
