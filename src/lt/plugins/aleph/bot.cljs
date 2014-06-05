@@ -18,7 +18,7 @@
     (first b)
     b))
 
-(defn b->t
+(defn b->t+b
   "Given a sequence of behaviors, returns a map of the associated tags and all
    their behaviors."
   [bs]
@@ -27,6 +27,11 @@
          (filter (fn [t]
                    (some behs (val t))))
          (into {}))))
+
+(defn b->t
+  "Given a sequence of behaviors, returns a list of the associated tags."
+  [bs]
+  (keys (b->t+b bs)))
 
 (defn b->o
   "Given a sequence of behaviors, returns a list of the objects to which any of
@@ -47,11 +52,16 @@
   (:tags @o))
 
 (defn o->t
+  "Given a sequence of object ids, return a list of their tags."
+  [ids]
+  (let [os (map object/by-id ids)]
+    (distinct (mapcat o->t* os))))
+
+(defn o->t+b
   "Given a sequence of objects ids, returns a list of their tags as keys associated
    to the respective behaviors."
   [ids]
-  (let [os (map object/by-id ids)
-        t-keys (distinct (mapcat o->t* os))
+  (let [t-keys (o->t ids)
         t-vals (map @object/tags t-keys)]
     (zipmap t-keys t-vals)))
 
