@@ -21,7 +21,7 @@
   (keyword (name (:lt.object/type @obj))))
 
 (defn extract-keys
-  "Given an Aleph filter-list, extract the current results into a list
+  "Given an Aleph filter-list, extracts the current results into a list
    of items compatible with relator functions."
   [f-l]
   (let [cur (:cur @f-l)
