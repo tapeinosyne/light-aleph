@@ -91,7 +91,9 @@
                           (object/merge! this (merge {:lis (vec items)} opts))
                           [:div.filter-list.empty
                            (fl/input this)
-                           mode-buttons
+                           (if mode-buttons
+                             [:div.mode-selection
+                              mode-buttons])
                            [:ul
                             items]
                            ])))
