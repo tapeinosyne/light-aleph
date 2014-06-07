@@ -6,7 +6,7 @@
             [lt.objs.tabs :as tab]
             [lt.util.dom :as dom]
             [clojure.set :as setop])
-  (:require-macros [lt.macros :refer [behavior]]))
+  (:require-macros [lt.macros :refer [behavior defui]]))
 
 
 ;;;;===========================================================================
@@ -56,6 +56,48 @@
                             relator (::relate-by @this)
                             observed [(relator item)]]
                         (propagate! super observed))))
+
+
+;;; search modes
+
+(defui search-mode-button [this {:keys [::display-key] :as mode}]
+  [:div.button.aleph-selector display-key]
+  :click (fn []
+           (object/raise this :search-by mode)))
+
+(defn change-search-mode [flist new-mode]
+  (object/merge! flist new-mode))
+
+(behavior ::search-by
+          :triggers #{:search-by}
+          :reaction (fn [this search-mode]
+                      (change-search-mode this search-mode)))
+
+
+;;; aleph filter-list object and constructor
+
+(object/object* ::selector
+                :tags #{:filter-list :aleph.selector}
+                :selected 0
+                :placeholder "search"
+                :items []
+                :search ""
+                :init (fn [this opts]
+                        (let [opts (merge {:size 100} opts)
+                              items (for [coll (range (:size opts))]
+                                      (fl/item this coll))
+                              mode-buttons (if-let [modes (::modes opts)]
+                                             (map #(search-mode-button this %) modes))]
+                          (object/merge! this (merge {:lis (vec items)} opts))
+                          [:div.filter-list.empty
+                           (fl/input this)
+                           mode-buttons
+                           [:ul
+                            items]
+                           ])))
+
+(defn selector [opts]
+  (object/create ::selector opts))
 
 
 ;;; behavior filter-list
