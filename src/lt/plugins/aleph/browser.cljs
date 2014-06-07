@@ -97,7 +97,9 @@
                            ])))
 
 (defn selector [opts]
-  (object/create ::selector opts))
+  (let [sel (object/create ::selector opts)]
+    (object/raise sel :re-list)
+    sel))
 
 
 ;;; behavior filter-list
