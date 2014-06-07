@@ -103,8 +103,8 @@
 ;;; behavior filter-list
 
 (defn b-enlist [b]
-  (map #(hash-map ::index-by-name (str (:name %))
-                  ::index-by-trigger (str (:triggers %))
+  (map #(hash-map ::name-key (str (:name %))
+                  ::triggers-key (str (:triggers %))
                   :name (:name %)
                   :triggers (:triggers %)) b))
 
@@ -116,21 +116,30 @@
   (fn [original scored highlighted item]
     (str "<h2>" (:name item) "</h2><p>" highlighted "</p>")))
 
-(def b-list (fl/filter-list {:items (fn [] (b-enlist (vals @object/behaviors)))
-                             :key ::index-by-trigger
-                             :transform (b-itemize-with-name)
-                             :placeholder "Behavior"
-                             ::relate-by :name
-                             ::list-fn b-enlist
-                             ::starter-items (fn []
-                                               (vals @object/behaviors))}))
+(def b-search-modes
+  [{:key ::name-key
+    :transform (b-itemize-with-name)
+    ::display-key "name"}
+   {:key ::triggers-key
+    :transform (b-itemize-with-triggers)
+    ::display-key "trigger"}])
+
+(def b-list (selector {:items (fn [] (b-enlist (vals @object/behaviors)))
+                       :key ::name-key
+                       :transform (b-itemize-with-name)
+                       :placeholder "Behavior"
+                       ::modes b-search-modes
+                       ::relate-by :name
+                       ::list-fn b-enlist
+                       ::starter-items (fn []
+                                         (vals @object/behaviors))}))
 
 
 ;;; object filter-list
 
 (defn o-enlist [o]
-  (map #(hash-map ::index-by-type (-> @% :lt.object/type str)
-                  ::index-by-id (-> @% :lt.object/id str)
+  (map #(hash-map ::type-key (-> @% :lt.object/type str)
+                  ::id-key (-> @% :lt.object/id str)
                   :lt.object/type (-> @% :lt.object/type)
                   :lt.object/id (-> @% :lt.object/id)
                   :tags (-> @% :tags)
@@ -144,34 +153,43 @@
   (fn [original scored highlighted item]
     (str "<h2>" (:lt.object/type item) "</h2><p>" highlighted "</p>")))
 
-(def o-list (fl/filter-list {:items (fn [] (o-enlist (vals @object/instances)))
-                             :key ::index-by-type
-                             :transform (o-itemize-with-type)
-                             :placeholder "Object"
-                             ::relate-by :lt.object/id
-                             ::list-fn o-enlist
-                             ::starter-items (fn []
-                                               (vals @object/instances))}))
+(def o-search-modes
+  [{:key ::type-key
+    :transform (o-itemize-with-type)
+    ::display-key "type"}
+   {:key ::id-key
+    :transform (o-itemize-with-id)
+    ::display-key "id"}])
+
+(def o-list (selector {:items (fn [] (o-enlist (vals @object/instances)))
+                       :key ::type-key
+                       :transform (o-itemize-with-type)
+                       :placeholder "Object"
+                       ::modes o-search-modes
+                       ::relate-by :lt.object/id
+                       ::list-fn o-enlist
+                       ::starter-items (fn []
+                                         (vals @object/instances))}))
 
 
 ;;; tag filter-list
 
 (defn t-enlist [t]
- (map #(hash-map ::index-by (str (key %))
-                 :tag (key %)
-                 :behaviors (val %)) t))
+  (map #(hash-map ::tag-key (str (key %))
+                  :tag (key %)
+                  :behaviors (val %)) t))
 
 (defn t-itemize []
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:behaviors item) "</p>")))
 
-(def t-list (fl/filter-list {:items (fn [] (t-enlist @object/tags))
-                             :key ::index-by
-                             :transform (t-itemize)
-                             :placeholder "Tag"
-                             ::relate-by :tag
-                             ::list-fn t-enlist
-                             ::starter-items (fn [] @object/tags)}))
+(def t-list (selector {:items (fn [] (t-enlist @object/tags))
+                       :key ::tag-key
+                       :transform (t-itemize)
+                       :placeholder "Tag"
+                       ::relate-by :tag
+                       ::list-fn t-enlist
+                       ::starter-items (fn [] @object/tags)}))
 
 
 ;;;;===========================================================================
