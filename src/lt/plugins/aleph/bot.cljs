@@ -103,5 +103,3 @@
   "Given a sequence of tags, returns a map of associated objects."
   [ts]
   (mapcat object/by-tag ts))
-
-
