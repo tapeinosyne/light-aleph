@@ -28,9 +28,9 @@
         k (::relate-by @f-l)]
     (map k (filter map? (apply concat cur)))))
 
-(defn propagate! [super observed]
+(defn propagate! [super observed & [force?]]
   (object/merge! super {:observing observed})
-  (object/raise super :propagate!))
+  (object/raise super :propagate! force?))
 
 (behavior ::update-sub
           :triggers #{:refresh!}
@@ -55,7 +55,7 @@
                       (let [super (:super @this)
                             relator (::relate-by @this)
                             observed [(relator item)]]
-                        (propagate! super observed))))
+                        (propagate! super observed :from-selection))))
 
 
 ;;; search modes
@@ -214,12 +214,13 @@
 (behavior ::propagate!
           :triggers #{:propagate!}
           :debounce 400
-          :reaction (fn [this]
+          :reaction (fn [this force?]
                       (let [element (type* this)
                             targets (vals (dissoc subspaces element))
                             selector (:selector @this)
                             obs (:observing @this)]
-                        (if (seq (fl/input-val selector))
+                        (if (or force?
+                                (seq (fl/input-val selector)))
                           (doseq [aleph-sub targets]
                             (object/raise aleph-sub :relate element obs))
                           (doseq [aleph-sub targets]
