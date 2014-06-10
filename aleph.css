@@ -59,11 +59,16 @@
   padding: 0.5rem 0;
   text-align: center;
   flex-basis: 48%;
+  background-color: var(inactive-bg);
 }
 
 .aleph-browser .aleph-filter .filter-list .mode-selection {
   display: flex;
   justify-content: space-between;
+}
+
+.aleph-browser .aleph-filter .filter-list .mode-selection > .button.current-mode {
+  background-color: var(highlight-bg);
 }
 
 
