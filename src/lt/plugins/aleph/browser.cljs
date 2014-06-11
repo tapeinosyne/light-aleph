@@ -60,8 +60,31 @@
 
 ;;; search modes
 
-(defui search-mode-button [this {:keys [::display-key] :as mode}]
-  [:div.button.aleph-selector display-key]
+(def css-mode-prefix "aleph-browser_search-by-")
+
+(defn opposite-mode [selector new-mode]
+  (let [search-modes (::modes @selector)]
+    (first (disj search-modes new-mode))))
+
+(defn opposite-mode-id [selector new-mode]
+  (::css-sel (opposite-mode selector new-mode)))
+
+(defn ->str-id [val-id]
+  (str "#" val-id))
+
+(defn switch-button-emphasis [inactive active]
+  (let [inactive-id-str (->str-id inactive)
+        active-id-str (->str-id active)]
+    (dom/remove-class (dom/$ inactive-id-str) :current-mode)
+    (dom/add-class (dom/$ active-id-str) :current-mode)))
+
+(defn emphasize-mode [selector mode]
+  (let [active-id (::css-sel mode)
+        inactive-id (opposite-mode-id selector mode)]
+    (switch-button-emphasis inactive-id active-id)))
+
+(defui search-mode-button [this {:keys [::display-key ::css-sel] :as mode}]
+  [:div.button.aleph-selector {:id css-sel} display-key]
   :click (fn []
            (object/raise this :search-by mode)))
 
@@ -71,7 +94,8 @@
 (behavior ::search-by
           :triggers #{:search-by}
           :reaction (fn [this search-mode]
-                      (change-search-mode this search-mode)))
+                      (change-search-mode this search-mode)
+                      (emphasize-mode this search-mode)))
 
 
 ;;; aleph filter-list object and constructor
@@ -121,12 +145,14 @@
     (str "<h2>" (:name item) "</h2><p>" highlighted "</p>")))
 
 (def b-search-modes
-  [{:key ::name-key
-    :transform (b-itemize-with-name)
-    ::display-key "name"}
-   {:key ::triggers-key
-    :transform (b-itemize-with-triggers)
-    ::display-key "trigger"}])
+  #{{:key ::name-key
+     :transform (b-itemize-with-name)
+     ::display-key "name"
+     ::css-sel (str css-button-prefix "name")}
+    {:key ::triggers-key
+     :transform (b-itemize-with-triggers)
+     ::display-key "trigger"
+     ::css-sel (str css-button-prefix "trigger")}})
 
 (def b-list (selector {:items (fn [] (b-enlist (vals @object/behaviors)))
                        :key ::name-key
@@ -158,12 +184,14 @@
     (str "<h2>" (:lt.object/type item) "</h2><p>" highlighted "</p>")))
 
 (def o-search-modes
-  [{:key ::type-key
-    :transform (o-itemize-with-type)
-    ::display-key "type"}
-   {:key ::id-key
-    :transform (o-itemize-with-id)
-    ::display-key "id"}])
+  #{{:key ::type-key
+     :transform (o-itemize-with-type)
+     ::display-key "type"
+     ::css-sel (str css-button-prefix "type")}
+    {:key ::id-key
+     :transform (o-itemize-with-id)
+     ::display-key "id"
+     ::css-sel (str css-button-prefix "id")}})
 
 (def o-list (selector {:items (fn [] (o-enlist (vals @object/instances)))
                        :key ::type-key
@@ -236,6 +264,7 @@
                             context (relator obs)]
                         (object/merge! selector {:items (enlist context)})
                         (object/raise selector :re-list))))
+
 
 ;;; sub objects
 
