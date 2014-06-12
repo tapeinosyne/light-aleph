@@ -14,7 +14,7 @@
   align-items: center;
 }
 
-.aleph-column {
+.aleph-browser .aleph-column {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -26,16 +26,16 @@
 
 /* Filter-lists */
 
-.aleph-filter {
+.aleph-browser .aleph-filter {
   background-color: transparent;
   flex-basis: 32%;
 }
 
-.aleph-filter .filter-list {
+.aleph-browser .aleph-filter .filter-list {
   padding: 0.5rem;
 }
 
-.aleph-filter .filter-list > ul > li {
+.aleph-browser .aleph-filter .filter-list > ul > li {
   width: 100%;
   margin: .25rem 0;
   padding: 0.5rem;
@@ -43,17 +43,17 @@
   background-color: rgba(127, 127, 127, 0.16);
 }
 
-.aleph-filter .filter-list > ul > li.selected {
+.aleph-browser .aleph-filter .filter-list > ul > li.selected {
   background: var(highlight-bg);
 }
 
-.aleph-filter .filter-list > input {
+.aleph-browser .aleph-filter .filter-list > input {
   width: 100%;
   margin-bottom: 0.5rem;
   padding: 0.5rem;
 }
 
-.aleph-filter .filter-list .mode-selection > .button {
+.aleph-browser .aleph-filter .filter-list .mode-selection > .button {
   display: inline-block;
   margin: .25rem 0;
   padding: 0.5rem 0;
@@ -61,7 +61,7 @@
   flex-basis: 48%;
 }
 
-.mode-selection {
+.aleph-browser .aleph-filter .filter-list .mode-selection {
   display: flex;
   justify-content: space-between;
 }
@@ -73,11 +73,11 @@
 -------------------------------------------------------------------------------
 */
 
-.aleph-filter .filter-list h2 {
+.aleph-browser .aleph-filter .filter-list h2 {
   font-size: 0.875rem;
 }
 
-.aleph-filter .filter-list p {
+.aleph-browser .aleph-filter .filter-list p {
   font-size: 0.625rem;
 }
 
@@ -88,6 +88,6 @@
 -------------------------------------------------------------------------------
 */
 
-.aleph-filter .filter-list > ul > li {
+.aleph-browser .aleph-filter .filter-list > ul > li {
   border-radius: 2px;
 }
