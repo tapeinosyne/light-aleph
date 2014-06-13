@@ -89,7 +89,7 @@
 
 (defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
   [:div {:id css-sel
-         :class (->class-str "button" "aleph-selector" (if (= 0 priority)
+         :class (->class-str "button" "mode-selector" (if (= 0 priority)
                                                        "current-mode"))}
    display-key]
   :click (fn []
