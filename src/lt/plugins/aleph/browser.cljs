@@ -156,12 +156,12 @@
   (sorted-set-by mode-priority-<
                  {:key ::name-key
                   :transform (b-itemize-with-name)
-                  ::display-key "name"
+                  ::display-key "by name"
                   ::css-sel (str css-mode-prefix "name")
                   ::priority 0}
                  {:key ::triggers-key
                   :transform (b-itemize-with-triggers)
-                  ::display-key "trigger"
+                  ::display-key "by trigger"
                   ::css-sel (str css-mode-prefix "trigger")
                   ::priority 1}))
 
@@ -198,12 +198,12 @@
   (sorted-set-by mode-priority-<
                  {:key ::type-key
                   :transform (o-itemize-with-type)
-                  ::display-key "type"
+                  ::display-key "by type"
                   ::css-sel (str css-mode-prefix "type")
                   ::priority 0}
                  {:key ::id-key
                   :transform (o-itemize-with-id)
-                  ::display-key "id"
+                  ::display-key "by id"
                   ::css-sel (str css-mode-prefix "id")
                   ::priority 1}))
 
