@@ -60,8 +60,6 @@
 
 ;;; search modes
 
-(def css-mode-prefix "aleph-browser_search-by-")
-
 (defn opposite-mode [selector new-mode]
   (let [search-modes (::modes @selector)]
     (first (disj search-modes new-mode))))
@@ -96,6 +94,16 @@
           :reaction (fn [this search-mode]
                       (change-search-mode this search-mode)
                       (emphasize-mode this search-mode)))
+
+(def css-mode-prefix "aleph-browser_search-by-")
+
+(defn mode-priority-< [x y]
+  (let [x-priority (::priority x)
+        y-priority (::priority y)
+        comparison (compare x-priority y-priority)]
+    (if-not (= comparison 0)
+      comparison
+      (compare x y))))
 
 
 ;;; aleph filter-list object and constructor
@@ -145,14 +153,17 @@
     (str "<h2>" (:name item) "</h2><p>" highlighted "</p>")))
 
 (def b-search-modes
-  #{{:key ::name-key
-     :transform (b-itemize-with-name)
-     ::display-key "name"
-     ::css-sel (str css-button-prefix "name")}
-    {:key ::triggers-key
-     :transform (b-itemize-with-triggers)
-     ::display-key "trigger"
-     ::css-sel (str css-button-prefix "trigger")}})
+  (sorted-set-by mode-priority-<
+                 {:key ::name-key
+                  :transform (b-itemize-with-name)
+                  ::display-key "name"
+                  ::css-sel (str css-mode-prefix "name")
+                  ::priority 0}
+                 {:key ::triggers-key
+                  :transform (b-itemize-with-triggers)
+                  ::display-key "trigger"
+                  ::css-sel (str css-mode-prefix "trigger")
+                  ::priority 1}))
 
 (def b-list (selector {:items (fn [] (b-enlist (vals @object/behaviors)))
                        :key ::name-key
@@ -184,14 +195,17 @@
     (str "<h2>" (:lt.object/type item) "</h2><p>" highlighted "</p>")))
 
 (def o-search-modes
-  #{{:key ::type-key
-     :transform (o-itemize-with-type)
-     ::display-key "type"
-     ::css-sel (str css-button-prefix "type")}
-    {:key ::id-key
-     :transform (o-itemize-with-id)
-     ::display-key "id"
-     ::css-sel (str css-button-prefix "id")}})
+  (sorted-set-by mode-priority-<
+                 {:key ::type-key
+                  :transform (o-itemize-with-type)
+                  ::display-key "type"
+                  ::css-sel (str css-mode-prefix "type")
+                  ::priority 0}
+                 {:key ::id-key
+                  :transform (o-itemize-with-id)
+                  ::display-key "id"
+                  ::css-sel (str css-mode-prefix "id")
+                  ::priority 1}))
 
 (def o-list (selector {:items (fn [] (o-enlist (vals @object/instances)))
                        :key ::type-key
