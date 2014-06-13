@@ -81,8 +81,17 @@
         inactive-id (opposite-mode-id selector mode)]
     (switch-button-emphasis inactive-id active-id)))
 
-(defui search-mode-button [this {:keys [::display-key ::css-sel] :as mode}]
-  [:div.button.aleph-selector {:id css-sel} display-key]
+(defn ->class-str [& strings]
+  (->> (into [] strings)
+       (filter identity)
+       (interpose " ")
+       (apply str)))
+
+(defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
+  [:div {:id css-sel
+         :class (->class-str "button" "aleph-selector" (if (= 0 priority)
+                                                       "current-mode"))}
+   display-key]
   :click (fn []
            (object/raise this :search-by mode)))
 
