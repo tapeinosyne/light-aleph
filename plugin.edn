@@ -1,5 +1,5 @@
 {:name "Aleph"
- :version "0.0.1"
+ :version "0.0.2"
  :author "ndr-qef"
  :source "https://github.com/ndr-qef/light-aleph"
  :desc "A BOT browser and introspector. "
