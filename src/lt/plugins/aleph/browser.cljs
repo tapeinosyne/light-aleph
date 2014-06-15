@@ -361,3 +361,9 @@
               :desc "Aleph: show browser"
               :exec (fn []
                       (tab/add-or-focus! browser))})
+
+(cmd/command {:command :aleph.browser.reset
+              :desc "Aleph: reload browser lists"
+              :exec (fn []
+                      (doseq [sub (vals subspaces)]
+                        (object/raise sub :reset!)))})
