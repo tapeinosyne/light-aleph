@@ -26,30 +26,24 @@
 
 ;;; behavior to object/tag
 
-(defn b->t+b
-  "Given a sequence of behaviors, returns a map of the associated tags and all
-   their behaviors."
-  [bs]
-  (let [behs (into #{} bs)]
-    (->> @object/tags
-         (filter (fn [t]
-                   (some behs (val t))))
-         (into {}))))
+(defn any-in-tag? [bs t]
+  (some bs (map k|coll (val t))))
 
 (defn b->t
-  "Given a sequence of behaviors, returns a list of the associated tags."
   [bs]
-  (keys (b->t+b bs)))
+  (let [b-set (->set bs)]
+    (->> @object/tags
+         (filter #(any-in-tag? b-set %))
+         (into {}))))
+
+(defn any-in-listeners? [bs o]
+  (some bs (flat-listeners (val o))))
 
 (defn b->o
-  "Given a sequence of behaviors, returns a list of the object instances to which any of
-   them is associated."
   [bs]
-  (let [behs (into #{} bs)
-        listeners (fn [o]
-                    (->> @o :listeners vals (apply concat)))]
-    (filter #(some behs (listeners %))
-            (vals @object/instances))))
+  (let [b-set (->set bs)]
+    (into {} (filter #(any-in-listeners? b-set %)
+                     @object/instances))))
 
 
 ;;; object to behavior/tag
