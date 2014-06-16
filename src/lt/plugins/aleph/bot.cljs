@@ -54,41 +54,76 @@
 
 ;;; object to behavior/tag
 
-(defn o->t*
-  "Given an object instance, returns a list of its tags."
-  [o]
-  (:tags @o))
+(defn mapcat-rel [relator elements]
+    (into {} (distinct (mapcat relator elements))))
 
-(defn o->t
-  "Given a sequence of object ids, return a list of their tags."
-  [ids]
-  (let [os (map object/by-id ids)]
-    (distinct (mapcat o->t* os))))
+(defprotocol ObjectRelator
+  (o->b [o] "Return behaviors related to the object")
+  (o->t [o] "Return tags related to the object"))
 
-(defn o->t+b
-  "Given a sequence of objects ids, returns a list of their tags as keys associated
-   to the respective behaviors."
-  [ids]
-  (let [t-keys (o->t ids)
-        t-vals (map @object/tags t-keys)]
-    (zipmap t-keys t-vals)))
+(extend-protocol ObjectRelator
+  ;; concision?
+  cljs.core/LazySeq
+  (o->t
+   [os]
+   (mapcat-rel o->t os))
+  (o->b
+   [os]
+   (mapcat-rel o->b os))
 
-(defn o->b*
-  "Given an object instance, returns a list of the associated behaviors' names."
-  [o]
-  (let [listeners (:listeners @o)
-        behs (vals listeners)]
-    (apply concat behs)))
+  cljs.core/List
+  (o->t
+   [os]
+   (mapcat-rel o->t os))
+  (o->b
+   [os]
+   (mapcat-rel o->b os))
 
-(defn o->b
-  "Given a sequence of object ids, returns a list of the associated behaviors,
-   including triggers and function definition."
-  [ids]
-  (let [os (map object/by-id ids)]
-    (->> os
-         (mapcat o->b*)
-         distinct
-         (map @object/behaviors))))
+  cljs.core/PersistentVector
+  (o->t
+   [os]
+   (mapcat-rel o->t os))
+  (o->b
+   [os]
+   (mapcat-rel o->b os))
+
+  cljs.core/PersistentHashSet
+  (o->t
+   [os]
+   (mapcat-rel o->t os))
+  (o->b
+   [os]
+   (mapcat-rel o->b os))
+
+  cljs.core/Atom
+  (o->t
+   [o]
+   (let [ts (:tags @o)]
+     (select-keys @object/tags ts)))
+  (o->b
+   [o]
+   (let [bs (flat-listeners o)]
+     (select-keys @object/behaviors bs)))
+
+  number
+  (o->t
+   [o:id]
+   (let [o (object/by-id o:id)]
+     (o->t o)))
+  (o->b
+   [o:id]
+   (let [o (object/by-id o:id)]
+     (o->b o)))
+
+  cljs.core/Keyword
+  (o->t
+   [o:type]
+   (let [os (object/instances-by-type o:type)]
+     (o->t os)))
+  (o->b
+   [o:type]
+   (let [os (object/instances-by-type o:type)]
+     (o->b os))))
 
 
 ;;; tag to object/behavior
