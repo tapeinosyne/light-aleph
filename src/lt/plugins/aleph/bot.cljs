@@ -151,3 +151,18 @@
     (->> @object/instances
          (filter #(any-tags? t-set %))
          (into {}))))
+
+
+;;;;===========================================================================
+;;;; API
+;;;;
+;;;; Additional facilities for querying BOT.
+;;;;___________________________________________________________________________
+
+(def relators
+  {:b {:t b->t :o b->o}
+   :o {:b o->b :t o->t}
+   :t {:b t->b :o t->o}})
+
+(defn relate [elems tail head]
+  ((-> relators tail head) elems))
