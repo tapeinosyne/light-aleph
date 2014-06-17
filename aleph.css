@@ -35,6 +35,11 @@
   padding: 0.5rem;
 }
 
+.aleph-browser .aleph-filter .filter-list > ul {
+  max-height: 100%;
+  overflow: scroll;
+}
+
 .aleph-browser .aleph-filter .filter-list > ul > li {
   width: 100%;
   margin: .25rem 0;
