@@ -310,15 +310,15 @@
 
 (->sub {:el  ::b
         :sel b-list
-        :rel {:o bot/o->b :t bot/t->b}})
+        :rel {:o #(vals (bot/o->b %)) :t #(vals (bot/t->b %))}})
 
 (->sub {:el  ::o
         :sel o-list
-        :rel {:b bot/b->o :t bot/t->o}})
+        :rel {:b #(vals (bot/b->o %)) :t #(vals (bot/t->o %))}})
 
 (->sub {:el  ::t
         :sel t-list
-        :rel {:b bot/b->t+b :o bot/o->t+b}})
+        :rel {:b bot/b->t :o bot/o->t}})
 
 (def b-sub (object/create ::b))
 (def o-sub (object/create ::o))
