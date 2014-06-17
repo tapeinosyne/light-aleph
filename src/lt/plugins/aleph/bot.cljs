@@ -122,21 +122,32 @@
 
 ;;; tag to object/behavior
 
-(defn ->behavior
+(defn ->b-val
   "Given a behavior name, returns the full behavior map."
-  [beh]
-  (if (coll? beh)
-    (merge (@object/behaviors (first beh)) {::args (into [] (rest beh))})
-    (@object/behaviors beh)))
+  [index b]
+  (if (coll? b)
+    (merge ((first b) index) {::args (into [] (rest b))})
+    (b index)))
 
 (defn t->b
-  "Given a sequence of tags, returns a list of the associated behaviors.
+  "Given a tag or sequence thereof, returns a map of the associated behaviors.
    Aguments passed by a tag will be stored in the behavior's entry as kv
    `:lt.plugins.aleph.bot/args [args]`."
   [ts]
-  (map ->behavior (object/tags->behaviors ts)))
+  (let [t-set (->set ts)
+        bs (object/tags->behaviors t-set)
+        index @object/behaviors]
+    (zipmap (map k|coll bs)
+            (map #(->b-val index %) bs))))
+
+(defn any-tags? [ts o]
+  (some ts (:tags @(val o))))
 
 (defn t->o
-  "Given a sequence of tags, returns a map of associated objects."
+  "Given a tag or sequence thereof, returns a map of the associated objects."
   [ts]
-  (mapcat object/by-tag ts))
+  (let [t-set (->set ts)]
+    ;; there seem to be inconsistent performance issues
+    (->> @object/instances
+         (filter #(any-tags? t-set %))
+         (into {}))))
