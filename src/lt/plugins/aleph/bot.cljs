@@ -7,7 +7,6 @@
 ;;;; relation functions
 ;;;;
 ;;;; Identification of basic associations between behaviors, objects, tags.
-;;;; TODO: separate graphing and restructuring for filter-lists.
 ;;;;___________________________________________________________________________
 
 (defn ->set [x]
