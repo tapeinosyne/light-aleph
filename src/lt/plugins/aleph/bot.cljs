@@ -41,8 +41,9 @@
 (defn b->o
   [bs]
   (let [b-set (->set bs)]
-    (into {} (filter #(any-in-listeners? b-set %)
-                     @object/instances))))
+    (->> @object/instances
+         (filter #(any-in-listeners? b-set %))
+         (into {}))))
 
 
 ;;; object to behavior/tag
