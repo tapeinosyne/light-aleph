@@ -10,13 +10,21 @@
 ;;;; TODO: separate graphing and restructuring for filter-lists.
 ;;;;___________________________________________________________________________
 
-;;; behavior to object/tag
+(defn ->set [x]
+  (if (coll? x)
+    (into #{} x)
+    (hash-set x)))
 
 (defn k|coll [b]
-  ;; will be used when relating behaviors with arguments.
   (if (coll? b)
     (first b)
     b))
+
+(defn flat-listeners [o]
+  (->> @o :listeners vals (apply concat)))
+
+
+;;; behavior to object/tag
 
 (defn b->t+b
   "Given a sequence of behaviors, returns a map of the associated tags and all
