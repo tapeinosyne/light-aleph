@@ -141,7 +141,7 @@
                           [:div.filter-list.empty
                            [:div.flex-row
                             (fl/input this)
-                            [:div.reset-wrapper (reset-button this)]
+                            (reset-button this)
                            ]
                            (if mode-buttons
                              [:div.mode-selection

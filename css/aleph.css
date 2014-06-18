@@ -45,27 +45,22 @@
 
 .aleph-browser .aleph-filter .filter-list > .flex-row {
   justify-content: space-between;
+  align-items: center;
 }
 
 .aleph-browser .aleph-filter .filter-list input {
   flex-basis: 100%;
   margin: 0 0 0.25rem 0;
+  padding: 0.5rem;
 }
 
-.aleph-browser .aleph-filter .filter-list .reset-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.aleph-browser .aleph-filter .filter-list .reset {
   flex-basis: 1.625rem;
   margin-left: 0.25rem;
-  height: 1.625rem;
-}
-
-.aleph-browser .aleph-filter .filter-list .reset-wrapper > .reset {
   background: transparent;
 }
 
-.aleph-browser .aleph-filter .filter-list .reset-wrapper > .button:hover {
+.aleph-browser .aleph-filter .filter-list .button:hover {
   color: var(highlight-fg);
   background: transparent !important;
 }
@@ -85,12 +80,6 @@
 
 .aleph-browser .aleph-filter .filter-list > ul > li.selected {
   background: var(highlight-bg);
-}
-
-.aleph-browser .aleph-filter .filter-list > input {
-  width: 100%;
-  margin-bottom: 0.5rem;
-  padding: 0.5rem;
 }
 
 .aleph-browser .aleph-filter .filter-list .mode-selection > .button {
@@ -125,7 +114,7 @@
   font-size: 0.625rem;
 }
 
-.aleph-browser .aleph-filter .filter-list .reset-wrapper > .reset {
+.aleph-browser .aleph-filter .filter-list .reset {
   color: var(placeholder-fg);
   font-family: 'Font Awesome';
   font-size: 14px;
