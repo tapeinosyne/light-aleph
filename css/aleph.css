@@ -60,7 +60,7 @@
   background: transparent;
 }
 
-.aleph-browser .aleph-filter .filter-list .button:hover {
+.aleph-browser .aleph-filter .filter-list .button.reset:hover {
   color: var(highlight-fg);
   background: transparent !important;
 }
