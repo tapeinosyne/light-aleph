@@ -137,7 +137,10 @@
                                              (map #(search-mode-button this %) modes))]
                           (object/merge! this (merge {:lis (vec items)} opts))
                           [:div.filter-list.empty
-                           (fl/input this)
+                           [:div.flex-row
+                            (fl/input this)
+                            [:div.reset-wrapper (reset-button this)]
+                           ]
                            (if mode-buttons
                              [:div.mode-selection
                               mode-buttons])
@@ -330,7 +333,7 @@
                 :name "Aleph"
                 :init (fn [this]
                         [:div.aleph-browser
-                         [:div.aleph-column
+                         [:div.flex-row
                           [:div#aleph-behaviors.aleph-filter
                            (object/->content b-list)]
                           [:div#aleph-objects.aleph-filter
