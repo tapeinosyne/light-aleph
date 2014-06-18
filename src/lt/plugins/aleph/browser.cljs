@@ -62,41 +62,6 @@
 
 ;;; search modes
 
-(defn opposite-mode [selector new-mode]
-  (let [search-modes (::modes @selector)]
-    (first (disj search-modes new-mode))))
-
-(defn opposite-mode-id [selector new-mode]
-  (::css-sel (opposite-mode selector new-mode)))
-
-(defn ->str-id [val-id]
-  (str "#" val-id))
-
-(defn switch-button-emphasis [inactive active]
-  (let [inactive-id-str (->str-id inactive)
-        active-id-str (->str-id active)]
-    (dom/remove-class (dom/$ inactive-id-str) :current-mode)
-    (dom/add-class (dom/$ active-id-str) :current-mode)))
-
-(defn emphasize-mode [selector mode]
-  (let [active-id (::css-sel mode)
-        inactive-id (opposite-mode-id selector mode)]
-    (switch-button-emphasis inactive-id active-id)))
-
-(defn ->class-str [& strings]
-  (->> (into [] strings)
-       (filter identity)
-       (interpose " ")
-       (apply str)))
-
-(defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
-  [:div {:id css-sel
-         :class (->class-str "button" "mode-selector" (if (= 0 priority)
-                                                        "current-mode"))}
-   display-key]
-  :click (fn []
-           (object/raise this :search-by mode)))
-
 (defn change-search-mode [flist new-mode]
   (object/merge! flist new-mode))
 
@@ -115,6 +80,37 @@
     (if-not (= comparison 0)
       comparison
       (compare x y))))
+
+
+;;; aleph filter-list GUI elements
+
+(defn opposite-mode [selector new-mode]
+  (let [search-modes (::modes @selector)]
+    (first (disj search-modes new-mode))))
+
+(defn ->str-id [val-id] (str "#" val-id))
+
+(defn emphasize-mode [selector mode]
+  (let [active-id (::css-sel mode)
+        inactive-id (::css-sel (opposite-mode selector mode))
+        inactive-sel (->str-id inactive-id)
+        active-sel (->str-id active-id)]
+    (dom/remove-class (dom/$ inactive-sel) :current-mode)
+    (dom/add-class (dom/$ active-sel) :current-mode)))
+
+(defn ->class-str [& strings]
+  (->> (into [] strings)
+       (filter identity)
+       (interpose " ")
+       (apply str)))
+
+(defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
+  [:div {:id css-sel
+         :class (->class-str "button" "mode-selector" (if (= 0 priority)
+                                                        "current-mode"))}
+   display-key]
+  :click (fn []
+           (object/raise this :search-by mode)))
 
 (defui reset-button [this]
   [:div.button.reset "refresh"]
