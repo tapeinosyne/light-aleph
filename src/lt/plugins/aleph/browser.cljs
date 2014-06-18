@@ -15,11 +15,6 @@
 ;;;; Searchable lists to be displayed in the Aleph browser.
 ;;;;___________________________________________________________________________
 
-(defn type*
-  "Given an object instance, returns its type as an unqualified keyword."
-  [obj]
-  (keyword (name (:lt.object/type @obj))))
-
 (defn extract-keys
   "Given an Aleph filter-list, extracts the current results into a list
    of items compatible with relator functions."
@@ -46,8 +41,7 @@
           :triggers #{:re-list}
           :reaction (fn [this]
                       (object/merge! this {:cur (fl/indexed-results @this)})
-                      (fl/fill-lis @this
-                                (:cur @this))))
+                      (fl/fill-lis @this (:cur @this))))
 
 (behavior ::propagate-selection!
           :triggers #{:select}
@@ -90,7 +84,7 @@
 (defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
   [:div {:id css-sel
          :class (->class-str "button" "mode-selector" (if (= 0 priority)
-                                                       "current-mode"))}
+                                                        "current-mode"))}
    display-key]
   :click (fn []
            (object/raise this :search-by mode)))
@@ -147,11 +141,12 @@
 
 ;;; behavior filter-list
 
-(defn b-enlist [b]
+(defn b-enlist [bs]
   (map #(hash-map ::name-key (str (:name %))
                   ::triggers-key (str (:triggers %))
                   :name (:name %)
-                  :triggers (:triggers %)) b))
+                  :triggers (:triggers %))
+       (vals bs)))
 
 (defn b-itemize-with-name []
   (fn [original scored highlighted item]
@@ -174,26 +169,26 @@
                   ::css-sel (str css-mode-prefix "trigger")
                   ::priority 1}))
 
-(def b-list (selector {:items (fn [] (b-enlist (vals @object/behaviors)))
+(def b-list (selector {:items (fn [] (b-enlist @object/behaviors))
                        :key ::name-key
                        :transform (b-itemize-with-name)
                        :placeholder "Behavior"
                        ::modes b-search-modes
                        ::relate-by :name
                        ::list-fn b-enlist
-                       ::starter-items (fn []
-                                         (vals @object/behaviors))}))
+                       ::starter-items (fn [] @object/behaviors)}))
 
 
 ;;; object filter-list
 
-(defn o-enlist [o]
+(defn o-enlist [os]
   (map #(hash-map ::type-key (-> @% :lt.object/type str)
                   ::id-key (-> @% :lt.object/id str)
                   :lt.object/type (-> @% :lt.object/type)
                   :lt.object/id (-> @% :lt.object/id)
                   :tags (-> @% :tags)
-                  :listeners (-> @% :listeners)) o))
+                  :listeners (-> @% :listeners))
+       (vals os)))
 
 (defn o-itemize-with-type []
   (fn [original scored highlighted item]
@@ -216,23 +211,23 @@
                   ::css-sel (str css-mode-prefix "id")
                   ::priority 1}))
 
-(def o-list (selector {:items (fn [] (o-enlist (vals @object/instances)))
+(def o-list (selector {:items (fn [] (o-enlist @object/instances))
                        :key ::type-key
                        :transform (o-itemize-with-type)
                        :placeholder "Object"
                        ::modes o-search-modes
                        ::relate-by :lt.object/id
                        ::list-fn o-enlist
-                       ::starter-items (fn []
-                                         (vals @object/instances))}))
+                       ::starter-items (fn [] @object/instances)}))
 
 
 ;;; tag filter-list
 
-(defn t-enlist [t]
+(defn t-enlist [ts]
   (map #(hash-map ::tag-key (str (key %))
                   :tag (key %)
-                  :behaviors (val %)) t))
+                  :behaviors (val %))
+       ts))
 
 (defn t-itemize []
   (fn [original scored highlighted item]
@@ -266,63 +261,50 @@
           :triggers #{:propagate!}
           :debounce 400
           :reaction (fn [this force?]
-                      (let [element (type* this)
-                            targets (vals (dissoc subspaces element))
-                            selector (:selector @this)
-                            obs (:observing @this)]
+                      (let [tail (:element @this)
+                            obs (:observing @this)
+                            targets (vals (dissoc subspaces tail))
+                            selector (:selector @this)]
                         (if (or force?
                                 (seq (fl/input-val selector)))
                           (doseq [aleph-sub targets]
-                            (object/raise aleph-sub :relate element obs))
+                            (object/raise aleph-sub :relate tail obs))
                           (doseq [aleph-sub targets]
                             (object/raise aleph-sub :reset!))))))
 
 (behavior ::relate
           :triggers #{:relate}
-          :reaction (fn [this element obs]
+          :reaction (fn [this tail obs]
                       (let [selector (:selector @this)
                             items (:items @selector)
                             enlist (::list-fn @selector)
-                            relator (-> @this :relator element)
-                            context (relator obs)]
-                        (object/merge! selector {:items (enlist context)})
+                            head (:element @this)
+                            related (bot/relate obs tail head)]
+                        (object/merge! selector {:items (enlist related)})
                         (object/raise selector :re-list))))
 
 
 ;;; sub objects
 
-(defn ->sub
-  "Given a map of options {:el element, :sel selector, :rel relators},
-   returns an Aleph subspace object."
-  [{:keys [el sel rel]}]
-  ;; review: if no substantial differences between handling of b/o/t emerge,
-  ;; consider using native init instead of ->sub.
-  (object/object* el
-                  :tags #{:aleph.sub}
-                  :observing []
-                  :selector sel
-                  :relator rel
-                  :init (fn [this]
-                          (object/add-tags sel [:aleph.selector])
-                          ;; This could be done without circularity, but this is
-                          ;; the Aleph, after all.
-                          (object/merge! sel {:super this}))))
+(object/object* ::sub
+                :tags #{:aleph.sub}
+                :element nil
+                :observing []
+                :selector {}
+                :init (fn [this {:keys [el sel] :as opts}]
+                        (object/merge! this {:element el
+                                             :selector sel})
+                        ;; This could be done without circularity, but this is
+                        ;; the Aleph, after all.
+                        (object/merge! sel {:super this})))
 
-(->sub {:el  ::b
-        :sel b-list
-        :rel {:o #(vals (bot/o->b %)) :t #(vals (bot/t->b %))}})
+(defn ->sub [el sel]
+  (object/create ::sub {:el el
+                        :sel sel}))
 
-(->sub {:el  ::o
-        :sel o-list
-        :rel {:b #(vals (bot/b->o %)) :t #(vals (bot/t->o %))}})
-
-(->sub {:el  ::t
-        :sel t-list
-        :rel {:b bot/b->t :o bot/o->t}})
-
-(def b-sub (object/create ::b))
-(def o-sub (object/create ::o))
-(def t-sub (object/create ::t))
+(def b-sub (->sub :b b-list))
+(def o-sub (->sub :o o-list))
+(def t-sub (->sub :t t-list))
 
 (def subspaces {:b b-sub
                 :o o-sub
