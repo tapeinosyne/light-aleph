@@ -1,3 +1,11 @@
+@font-face {
+  font-family: 'Font Awesome';
+  src: url('fontawesome.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
 /*
 ===============================================================================
   Layout
@@ -14,7 +22,7 @@
   align-items: center;
 }
 
-.aleph-browser .aleph-column {
+.aleph-browser .flex-row {
   display: flex;
   flex-direction: row;
   width: 100%;
@@ -33,6 +41,33 @@
 
 .aleph-browser .aleph-filter .filter-list {
   padding: 0.5rem;
+}
+
+.aleph-browser .aleph-filter .filter-list > .flex-row {
+  justify-content: space-between;
+}
+
+.aleph-browser .aleph-filter .filter-list input {
+  flex-basis: 100%;
+  margin: 0 0 0.25rem 0;
+}
+
+.aleph-browser .aleph-filter .filter-list .reset-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-basis: 1.625rem;
+  margin-left: 0.25rem;
+  height: 1.625rem;
+}
+
+.aleph-browser .aleph-filter .filter-list .reset-wrapper > .reset {
+  background: transparent;
+}
+
+.aleph-browser .aleph-filter .filter-list .reset-wrapper > .button:hover {
+  color: var(highlight-fg);
+  background: transparent !important;
 }
 
 .aleph-browser .aleph-filter .filter-list > ul {
@@ -59,7 +94,6 @@
 }
 
 .aleph-browser .aleph-filter .filter-list .mode-selection > .button {
-  display: inline-block;
   margin: .25rem 0;
   padding: 0.5rem 0;
   text-align: center;
@@ -89,6 +123,14 @@
 
 .aleph-browser .aleph-filter .filter-list p {
   font-size: 0.625rem;
+}
+
+.aleph-browser .aleph-filter .filter-list .reset-wrapper > .reset {
+  color: var(placeholder-fg);
+  font-family: 'Font Awesome';
+  font-size: 14px;
+  text-align: center;
+  -webkit-font-feature-settings: 'liga';
 }
 
 
