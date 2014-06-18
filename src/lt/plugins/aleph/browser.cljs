@@ -43,6 +43,14 @@
                       (object/merge! this {:cur (fl/indexed-results @this)})
                       (fl/fill-lis @this (:cur @this))))
 
+(behavior ::reset!
+          :triggers #{:reset!}
+          :reaction (fn [this]
+                      (let [enlist (::list-fn @this)
+                            starter (::starter-items @this)]
+                        (object/merge! this {:items (enlist (starter))})
+                        (object/raise this :re-list))))
+
 (behavior ::propagate-selection!
           :triggers #{:select}
           :reaction (fn [this item]
@@ -248,15 +256,6 @@
 ;;;; Manage BOT lists and propagation of results.
 ;;;;___________________________________________________________________________
 
-(behavior ::reset!
-          :triggers #{:reset!}
-          :reaction (fn [this]
-                      (let [selector (:selector @this)
-                            enlist (::list-fn @selector)
-                            starter (::starter-items @selector)]
-                        (object/merge! selector {:items (enlist (starter))})
-                        (object/raise selector :re-list))))
-
 (behavior ::propagate!
           :triggers #{:propagate!}
           :debounce 400
@@ -270,7 +269,7 @@
                           (doseq [aleph-sub targets]
                             (object/raise aleph-sub :relate tail obs))
                           (doseq [aleph-sub targets]
-                            (object/raise aleph-sub :reset!))))))
+                            (object/raise (:selector @aleph-sub) :reset!))))))
 
 (behavior ::relate
           :triggers #{:relate}
@@ -345,7 +344,7 @@
                       (tab/add-or-focus! browser))})
 
 (cmd/command {:command :aleph.browser.reset
-              :desc "Aleph: reload browser lists"
+              :desc "Aleph: reset browser"
               :exec (fn []
                       (doseq [sub (vals subspaces)]
-                        (object/raise sub :reset!)))})
+                        (object/raise (:selector @sub) :reset!)))})

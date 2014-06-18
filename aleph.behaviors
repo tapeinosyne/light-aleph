@@ -3,13 +3,13 @@
 
      :aleph.browser [:lt.plugins.aleph.browser/on-close]
 
-     :aleph.sub [:lt.plugins.aleph.browser/propagate!
-                 :lt.plugins.aleph.browser/relate
-                 :lt.plugins.aleph.browser/reset!]
+     :aleph.sub [:lt.plugins.aleph.browser/relate
+                 :lt.plugins.aleph.browser/propagate!]
 
-     :aleph.selector [:lt.plugins.aleph.browser/update-sub
+     :aleph.selector [:lt.plugins.aleph.browser/propagate-selection!
                       :lt.plugins.aleph.browser/re-list
-                      :lt.plugins.aleph.browser/propagate-selection!
-                      :lt.plugins.aleph.browser/search-by]}
+                      :lt.plugins.aleph.browser/reset!
+                      :lt.plugins.aleph.browser/search-by
+                      :lt.plugins.aleph.browser/update-sub]}
 
  :- {:aleph.selector [:lt.objs.sidebar.command/update-lis]}}
