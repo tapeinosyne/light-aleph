@@ -277,7 +277,7 @@
                                 (seq (fl/input-val selector)))
                           (doseq [aleph-sub targets]
                             (object/raise aleph-sub :relate tail obs))
-                          (doseq [aleph-sub targets]
+                          (doseq [aleph-sub (vals subspaces)]
                             (object/raise (:selector @aleph-sub) :reset!))))))
 
 (behavior ::relate
