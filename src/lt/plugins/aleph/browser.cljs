@@ -343,8 +343,8 @@
               :exec (fn []
                       (tab/add-or-focus! browser))})
 
-(cmd/command {:command :aleph.browser.reset
-              :desc "Aleph: reset browser"
+(cmd/command {:command :aleph.browser.refresh
+              :desc "Aleph: refresh browser"
               :exec (fn []
                       (doseq [sub (vals subspaces)]
                         (object/raise (:selector @sub) :reset!)))})
