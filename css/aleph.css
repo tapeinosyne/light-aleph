@@ -82,6 +82,10 @@
   background: rgba(127, 127, 127, 0.48);
 }
 
+.aleph-browser .aleph-filter .filter-list > ul > li.active-query {
+  background: var(accent-background);
+}
+
 .aleph-browser .aleph-filter .filter-list .mode-selection > .button {
   margin: .25rem 0;
   padding: 0.5rem 0;

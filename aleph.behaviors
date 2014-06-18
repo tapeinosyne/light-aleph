@@ -6,7 +6,8 @@
      :aleph.sub [:lt.plugins.aleph.browser/relate
                  :lt.plugins.aleph.browser/propagate!]
 
-     :aleph.selector [:lt.plugins.aleph.browser/propagate-selection!
+     :aleph.selector [:lt.plugins.aleph.browser/de-emphasize-query
+                      :lt.plugins.aleph.browser/propagate-selection!
                       :lt.plugins.aleph.browser/re-list
                       :lt.plugins.aleph.browser/reset!
                       :lt.plugins.aleph.browser/search-by

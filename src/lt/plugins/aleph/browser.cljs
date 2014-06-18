@@ -15,6 +15,28 @@
 ;;;; Searchable lists to be displayed in the Aleph browser.
 ;;;;___________________________________________________________________________
 
+;;;; single-item query emphasis
+
+(defn index->node [this i] (nth (:lis @this) i))
+
+(defn remove-active-query [sel]
+  (let [old (:active-query @sel)]
+    (when old
+      (dom/remove-class (index->node sel old) :active-query))
+    (object/assoc-in! sel [:active-query] nil)))
+
+(defn emphasize-active-query [sel]
+  (let [new (:selected @sel)]
+    (remove-active-query sel)
+    (object/merge! sel {:active-query new})
+    (dom/add-class (index->node sel new) :active-query)))
+
+(behavior ::de-emphasize-query
+          :triggers #{:refresh! :re-list}
+          :reaction (fn [this] (remove-active-query this)))
+
+;;; propagation
+
 (defn extract-keys
   "Given an Aleph filter-list, extracts the current results into a list
    of items compatible with relator functions."
@@ -63,7 +85,8 @@
                       (let [super (:super @this)
                             relator (::relate-by @this)
                             observed [(relator item)]]
-                        (propagate! super observed :from-selection))))
+                        (propagate! super observed :from-selection)
+                        (emphasize-active-query this))))
 
 
 ;;; search modes
