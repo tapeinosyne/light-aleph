@@ -4,8 +4,8 @@
             [lt.objs.command :as cmd]
             [lt.objs.sidebar.command :as fl]
             [lt.objs.tabs :as tab]
-            [lt.util.dom :as dom]
-            [clojure.set :as setop])
+            [lt.objs.notifos :as notifos]
+            [lt.util.dom :as dom])
   (:require-macros [lt.macros :refer [behavior defui]]))
 
 
@@ -45,11 +45,17 @@
 
 (behavior ::reset!
           :triggers #{:reset!}
-          :reaction (fn [this]
+          :reaction (fn [this & [notify?]]
                       (let [enlist (::list-fn @this)
                             starter (::starter-items @this)]
                         (object/merge! this {:items (enlist (starter))})
-                        (object/raise this :re-list))))
+                        (object/raise this :re-list)
+                        (when notify?
+                          (notifos/set-msg! (str "Aleph Browser: refreshed "
+                                                 (if-let [s (:msg notify?)]
+                                                   s
+                                                   (clojure.string/lower-case (:placeholder @this)))
+                                                 " list"))))))
 
 (behavior ::propagate-selection!
           :triggers #{:select}
@@ -114,7 +120,7 @@
 
 (defui reset-button [this]
   [:div.button.reset "refresh"]
-  :click (fn [] (object/raise this :reset!)))
+  :click (fn [] (object/raise this :reset! true)))
 
 
 ;;; aleph filter-list object and constructor
@@ -350,4 +356,4 @@
               :desc "Aleph: refresh browser"
               :exec (fn []
                       (doseq [sub (vals subspaces)]
-                        (object/raise (:selector @sub) :reset!)))})
+                        (object/raise (:selector @sub) :reset! {:msg "every"})))})
