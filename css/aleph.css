@@ -75,11 +75,11 @@
   margin: .25rem 0;
   padding: 0.5rem;
   word-wrap: break-word;
-  background-color: rgba(127, 127, 127, 0.16);
+  background: rgba(127, 127, 127, 0.16);
 }
 
 .aleph-browser .aleph-filter .filter-list > ul > li.selected {
-  background: var(highlight-bg);
+  background: rgba(127, 127, 127, 0.48);
 }
 
 .aleph-browser .aleph-filter .filter-list .mode-selection > .button {
