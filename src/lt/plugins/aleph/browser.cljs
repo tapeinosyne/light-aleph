@@ -342,7 +342,7 @@
 (def browser (object/create ::aleph.browser))
 
 (cmd/command {:command :aleph.browse
-              :desc "Aleph: show browser"
+              :desc "Aleph: open browser"
               :exec (fn []
                       (tab/add-or-focus! browser))})
 
