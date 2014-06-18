@@ -116,6 +116,10 @@
       comparison
       (compare x y))))
 
+(defui reset-button [this]
+  [:div.button.reset "refresh"]
+  :click (fn [] (object/raise this :reset!)))
+
 
 ;;; aleph filter-list object and constructor
 
