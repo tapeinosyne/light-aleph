@@ -159,6 +159,20 @@
 ;;;; Additional facilities for querying BOT.
 ;;;;___________________________________________________________________________
 
+;;; triggers
+
+(defn any-triggers? [triggers b]
+  (some triggers (:triggers (val b))))
+
+(defn triggers->behaviors [triggers]
+  (let [trigger-set (->set triggers)]
+    (->> @object/behaviors
+         (filter #(any-triggers? trigger-set %))
+         (into {}))))
+
+
+;;; dispatcher
+
 (def relators
   {:b {:t b->t :o b->o}
    :o {:b o->b :t o->t}
