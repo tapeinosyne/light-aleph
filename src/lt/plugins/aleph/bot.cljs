@@ -22,6 +22,9 @@
 (defn flat-listeners [o]
   (->> @o :listeners vals (apply concat)))
 
+(defn select-keys-with [map pred xs]
+  (into {} (filter (partial pred xs) map)))
+
 
 ;;; behavior to object/tag
 
@@ -36,9 +39,9 @@
    The returned map is a subset of the `object/tags` index."
   [bs]
   (let [b-set (->set bs)]
-    (->> @object/tags
-         (filter #(any-in-tag? b-set %))
-         (into {}))))
+    (select-keys-with @object/tags
+                      any-in-tag?
+                      b-set)))
 
 (defn any-in-listeners? [bs o]
   (some bs (flat-listeners (val o))))
@@ -51,9 +54,9 @@
    The returned map is a subset of the `object/instances` index."
   [bs]
   (let [b-set (->set bs)]
-    (->> @object/instances
-         (filter #(any-in-listeners? b-set %))
-         (into {}))))
+    (select-keys-with @object/instances
+                      any-in-listeners?
+                      b-set)))
 
 
 ;;; object to behavior/tag
@@ -175,9 +178,9 @@
   [ts]
   (let [t-set (->set ts)]
     ;; there seem to be inconsistent performance issues
-    (->> @object/instances
-         (filter #(any-tags? t-set %))
-         (into {}))))
+    (select-keys-with @object/instances
+                      any-tags?
+                      t-set)))
 
 
 ;;;;===========================================================================
@@ -199,9 +202,10 @@
    The returned map is a subset of the `object/behaviors` index."
   [triggers]
   (let [trigger-set (->set triggers)]
-    (->> @object/behaviors
-         (filter #(any-triggers? trigger-set %))
-         (into {}))))
+    (select-keys-with @object/behaviors
+                      any-triggers?
+                      trigger-set)))
+
 
 
 ;;; dispatcher
