@@ -1,6 +1,6 @@
 (ns lt.plugins.aleph.bot
-  (:require [lt.object :as object]
-            [clojure.set :as setop]))
+  (:require [clojure.set :as setop]
+            [lt.object :as object]))
 
 
 ;;;;===========================================================================
