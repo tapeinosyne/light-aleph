@@ -31,20 +31,12 @@
 (defn any-in-tag? [bs t]
   (some bs (map k|coll (val t))))
 
-(defn b->t
-  "Given a behavior name or sequence thereof, returns a map of tags which
-   associate any of them.
-   Keys are tag names, associated to their full list of behaviors.
-
-   The returned map is a subset of the `object/tags` index."
-  [bs]
-  (let [b-set (->set bs)]
-    (select-keys-with @object/tags
-                      any-in-tag?
-                      b-set)))
-
 (defn any-in-listeners? [bs o]
   (some bs (flat-listeners (val o))))
+
+(defn b->b [bs]
+  (let [b-set (->set bs)]
+    (select-keys @object/behaviors b-set)))
 
 (defn b->o
   "Given a behavior name or sequence thereof, returns a map of objects which
@@ -56,6 +48,18 @@
   (let [b-set (->set bs)]
     (select-keys-with @object/instances
                       any-in-listeners?
+                      b-set)))
+
+(defn b->t
+  "Given a behavior name or sequence thereof, returns a map of tags which
+   associate any of them.
+   Keys are tag names, associated to their full list of behaviors.
+
+   The returned map is a subset of the `object/tags` index."
+  [bs]
+  (let [b-set (->set bs)]
+    (select-keys-with @object/tags
+                      any-in-tag?
                       b-set)))
 
 
@@ -72,6 +76,8 @@
 
     The returned map is a subset of the `object/behaviors` index.")
 
+  (o->o [o])
+
   (o->t [o]
    "Given an object type, id, or instance, or a sequence thereof, returns a map
     of their tags.
@@ -82,66 +88,48 @@
 (extend-protocol ObjectRelator
   ;; concision?
   cljs.core/LazySeq
-  (o->t
-   [os]
-   (mapcat-rel o->t os))
-  (o->b
-   [os]
-   (mapcat-rel o->b os))
+  (o->b [os] (mapcat-rel o->b os))
+  (o->o [os] (mapcat-rel o->o os))
+  (o->t [os] (mapcat-rel o->t os))
 
   cljs.core/List
-  (o->t
-   [os]
-   (mapcat-rel o->t os))
-  (o->b
-   [os]
-   (mapcat-rel o->b os))
+  (o->b [os] (mapcat-rel o->b os))
+  (o->o [os] (mapcat-rel o->o os))
+  (o->t [os] (mapcat-rel o->t os))
 
   cljs.core/PersistentVector
-  (o->t
-   [os]
-   (mapcat-rel o->t os))
-  (o->b
-   [os]
-   (mapcat-rel o->b os))
+  (o->b [os] (mapcat-rel o->b os))
+  (o->o [os] (mapcat-rel o->o os))
+  (o->t [os] (mapcat-rel o->t os))
 
   cljs.core/PersistentHashSet
-  (o->t
-   [os]
-   (mapcat-rel o->t os))
-  (o->b
-   [os]
-   (mapcat-rel o->b os))
+  (o->b [os] (mapcat-rel o->b os))
+  (o->o [os] (mapcat-rel o->o os))
+  (o->t [os] (mapcat-rel o->t os))
 
   cljs.core/Atom
-  (o->t
-   [o]
-   (let [ts (:tags @o)]
-     (select-keys @object/tags ts)))
-  (o->b
-   [o]
-   (let [bs (flat-listeners o)]
-     (select-keys @object/behaviors bs)))
+  (o->b [o]
+    (let [bs (flat-listeners o)] (select-keys @object/behaviors bs)))
+  (o->o [o]
+    (let [id (:lt.object/id @o)] (select-keys @object/instances id)))
+  (o->t [o]
+    (let [ts (:tags @o)] (select-keys @object/tags ts)))
 
   number
-  (o->t
-   [o:id]
-   (let [o (object/by-id o:id)]
-     (o->t o)))
-  (o->b
-   [o:id]
-   (let [o (object/by-id o:id)]
-     (o->b o)))
+  (o->t [o:id]
+    (let [o (object/by-id o:id)] (o->t o)))
+  (o->b [o:id]
+    (let [o (object/by-id o:id)] (o->b o)))
+  (o->b [o:id]
+    (let [o (object/by-id o:id)] (o->o o)))
 
   cljs.core/Keyword
-  (o->t
-   [o:type]
-   (let [os (object/instances-by-type o:type)]
-     (o->t os)))
-  (o->b
-   [o:type]
-   (let [os (object/instances-by-type o:type)]
-     (o->b os))))
+  (o->t [o:type]
+    (let [os (object/instances-by-type o:type)] (o->t os)))
+  (o->b [o:type]
+    (let [os (object/instances-by-type o:type)] (o->b os)))
+  (o->o [o:type]
+    (let [os (object/instances-by-type o:type)] (o->o os))))
 
 
 ;;; tag to object/behavior
@@ -153,6 +141,9 @@
   (if (coll? b)
     (merge ((first b) index) {::args (into [] (rest b))})
     (b index)))
+
+(defn any-tags? [ts o]
+  (some ts (:tags @(val o))))
 
 (defn t->b
   "Given a tag or sequence thereof, returns a map of the behaviors associated
@@ -167,9 +158,6 @@
     (zipmap (map k|coll bs)
             (map #(->b-val index %) bs))))
 
-(defn any-tags? [ts o]
-  (some ts (:tags @(val o))))
-
 (defn t->o
   "Given a tag or sequence thereof, returns a map of the objects tagged with any
    of them.
@@ -181,6 +169,10 @@
     (select-keys-with @object/instances
                       any-tags?
                       t-set)))
+
+(defn t->t [ts]
+  (let [t-set (->set ts)]
+    (select-keys @object/tags t-set)))
 
 
 ;;;;===========================================================================
@@ -206,14 +198,15 @@
                       any-triggers?
                       trigger-set)))
 
+;;; existance
 
 
 ;;; dispatcher
 
 (def relators
-  {:b {:t b->t :o b->o}
-   :o {:b o->b :t o->t}
-   :t {:b t->b :o t->o}})
+  {:b {:b b->b     :o b->o :t b->t}
+   :o {:b o->b     :o o->o :t o->t}
+   :t {:b t->b     :o t->o :t t->t}})
 
 (defn relate
   "Identifies associations between BOT elements.
