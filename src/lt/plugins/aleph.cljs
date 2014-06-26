@@ -1,7 +1,7 @@
 (ns lt.plugins.aleph
-  (:require [lt.object :as object]
-            [lt.objs.command :as cmd])
-  (:require-macros [lt.macros :refer [behavior]]))
-
-
-
+  (:require [lt.plugins.aleph.browser :as browse]
+            [lt.plugins.aleph.inspector :as inspect]
+            [lt.plugins.aleph.monitor :as monitor]
+            [lt.objs.command :as cmd]
+            [lt.objs.tabs :as tab]
+            [lt.object :as object]))
