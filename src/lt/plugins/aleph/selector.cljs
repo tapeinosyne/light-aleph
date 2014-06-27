@@ -34,10 +34,8 @@
 (defn ->str-id [val-id] (str "#" val-id))
 
 (defn emphasize-mode [selector mode]
-  (let [active-id (::css-sel mode)
-        inactive-id (::css-sel (opposite-mode selector mode))
-        inactive-sel (->str-id inactive-id)
-        active-sel (->str-id active-id)]
+  (let [active-sel (->str-id (::css-sel mode))
+        inactive-sel (->str-id (::css-sel (opposite-mode selector mode)))]
     (dom/remove-class (dom/$ inactive-sel) :current-mode)
     (dom/add-class (dom/$ active-sel) :current-mode)))
 
