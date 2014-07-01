@@ -40,6 +40,7 @@ Aleph lists will automatically refresh when you clear the input field. You can a
 
 To refresh all lists at once, you can use the command `Aleph: refresh browser`.
 
+
 ## API
 
 ### BOT
@@ -76,7 +77,7 @@ The `lt.plugins.aleph.bot` namespace offers facilities to identify the current c
  :foo-tag (:lt.example/behavior :lt.bar/baz)}
 ```
 
-`(o->b [objects])` returns behaviors available to any of `[objects]`.
+`(o->b [objects])` returns behaviors available to any of `[objects]`. It accepts any mix of object ids, types, and instances.
 ```clojure
 (bot/o->b [92])
 
@@ -86,7 +87,7 @@ The `lt.plugins.aleph.bot` namespace offers facilities to identify the current c
                        :reaction <fn …>}
 ```
 
-`(o->t [objects])` returns tags attached to any of `[objects]`.
+`(o->t [objects])` returns tags attached to any of `[objects]`. It accepts any mix of object ids, types, and instances.
 ```clojure
 (bot/o->t [92])
 
