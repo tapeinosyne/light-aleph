@@ -198,7 +198,23 @@
                       any-triggers?
                       trigger-set)))
 
-;;; existance
+(defn triggers->objects
+  "Given a trigger or a sequence thereof, returns a map of objects listening
+   for any of them.
+   Keys are integer ids, associated to their object instance.
+
+   The returned map is a subset of the `object/instances` index."
+  [triggers]
+  (-> triggers ->set triggers->behaviors keys b->o))
+
+(defn triggers->tags
+  "Given a trigger or a sequence thereof, returns a map of tags attaching
+   behaviors which listen for any of them.
+   Keys are tag names, associated to their full list of behaviors.
+
+   The returned map is a subset of the `object/tags` index."
+  [triggers]
+  (-> triggers triggers->behaviors keys b->t))
 
 
 ;;; dispatcher
