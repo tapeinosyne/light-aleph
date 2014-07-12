@@ -220,9 +220,9 @@
 ;;; dispatcher
 
 (def relators
-  {:b {:b b->b     :o b->o :t b->t}
-   :o {:b o->b     :o o->o :t o->t}
-   :t {:b t->b     :o t->o :t t->t}})
+  {:b {:b b->b  :o b->o  :t b->t}
+   :o {:b o->b  :o o->o  :t o->t}
+   :t {:b t->b  :o t->o  :t t->t}})
 
 (defn relate
   "Identifies associations between BOT elements.
