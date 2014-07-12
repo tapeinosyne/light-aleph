@@ -34,7 +34,11 @@
 (defn any-in-listeners? [bs o]
   (some bs (flat-listeners (val o))))
 
-(defn b->b [bs]
+(defn b->b
+  "Given a behavior name or sequence thereof, returns their map entries from
+   the `object/behaviors` index.
+   Keys are behavior names, associated to their full behavior value."
+  [bs]
   (let [b-set (->set bs)]
     (select-keys @object/behaviors b-set)))
 
@@ -72,11 +76,14 @@
   (o->b [o]
    "Given an object type, id, or instance, or a sequence thereof, returns a map
     of their behaviors.
-    Keys are behavior names, associated to their full value: name, triggers, reaction.
+    Keys are behavior names, associated to their full behavior value.
 
     The returned map is a subset of the `object/behaviors` index.")
 
-  (o->o [o])
+  (o->o [o]
+   "Given an object type, id, or instance, or a sequence thereof, returns their
+    map entries from the `object/instances` index.
+    Keys are integer ids, associated to their object instance.")
 
   (o->t [o]
    "Given an object type, id, or instance, or a sequence thereof, returns a map
@@ -148,7 +155,8 @@
 (defn t->b
   "Given a tag or sequence thereof, returns a map of the behaviors associated
    by any of them.
-   Keys are behavior names, associated to their full value: name, triggers, reaction.
+   Keys are behavior names, associated to their full behavior value.
+
    Arguments passed by a tag will be stored in the behavior's entry as kv
    `:lt.plugins.aleph.bot/args [arg & more]`."
   [ts]
@@ -161,6 +169,7 @@
 (defn t->o
   "Given a tag or sequence thereof, returns a map of the objects tagged with any
    of them.
+   Keys are integer ids, associated to their object instance.
 
    The returned map is a subset of the `object/instances` index."
   [ts]
@@ -170,7 +179,11 @@
                       any-tags?
                       t-set)))
 
-(defn t->t [ts]
+(defn t->t
+  "Given a tag or sequence thereof, returns their map entries from
+   the `object/tags` index.
+   Keys are tag names, associated to their full list of behaviors."
+  [ts]
   (let [t-set (->set ts)]
     (select-keys @object/tags t-set)))
 
@@ -189,7 +202,7 @@
 (defn triggers->behaviors
   "Given a trigger or a sequence thereof, returns a map of behaviors listening
    for any of them.
-   Keys are behavior names, associated to their full value: name, triggers, reaction.
+   Keys are behavior names, associated to their full behavior value.
 
    The returned map is a subset of the `object/behaviors` index."
   [triggers]
@@ -230,7 +243,7 @@
    Takes one element or a sequence thereof, reads them as elements of type `tail`,
    and returns the associated elements of type `head`.
 
-   Tail and head are keywords, and can be:
+   Tail and head must be one of the following keywords:
    - `:b` for behaviors,
    - `:o` for objects,
    - `:t` for tags."
