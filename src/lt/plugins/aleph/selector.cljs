@@ -17,8 +17,8 @@
 (def css-mode-prefix "aleph-selector_search-by-")
 
 (defn mode-priority-< [x y]
-  (let [x-priority (::priority x)
-        y-priority (::priority y)
+  (let [x-priority (:priority x)
+        y-priority (:priority y)
         comparison (compare x-priority y-priority)]
     (if-not (= comparison 0)
       comparison
@@ -34,8 +34,8 @@
 (defn ->str-id [val-id] (str "#" val-id))
 
 (defn emphasize-mode [selector mode]
-  (let [active-sel (->str-id (::css-sel mode))
-        inactive-sel (->str-id (::css-sel (opposite-mode selector mode)))]
+  (let [active-sel (->str-id (:css-sel mode))
+        inactive-sel (->str-id (:css-sel (opposite-mode selector mode)))]
     (dom/remove-class (dom/$ inactive-sel) :current-mode)
     (dom/add-class (dom/$ active-sel) :current-mode)))
 
@@ -45,7 +45,7 @@
        (interpose " ")
        (apply str)))
 
-(defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
+(defui search-mode-button [this {:keys [:display-key :css-sel :priority] :as mode}]
   [:div {:id css-sel
          :class (->class-str "button" "mode-selector" (if (= 0 priority)
                                                         "current-mode"))}
@@ -76,7 +76,7 @@
                         (let [opts (merge {:size 100} opts)
                               items (for [coll (range (:size opts))]
                                       (fl/item this coll))
-                              mode-buttons (if-let [modes (::modes opts)]
+                              mode-buttons (if-let [modes (:modes opts)]
                                              (map #(search-mode-button this %) modes))]
                           (object/merge! this (merge {:lis (vec items)} opts))
                           [:div.filter-list.empty
