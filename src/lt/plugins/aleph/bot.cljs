@@ -116,20 +116,20 @@
     (let [ts (:tags @o)] (select-keys @object/tags ts)))
 
   number
-  (o->t [o:id]
-    (let [o (object/by-id o:id)] (o->t o)))
   (o->b [o:id]
     (let [o (object/by-id o:id)] (o->b o)))
-  (o->b [o:id]
+  (o->o [o:id]
     (let [o (object/by-id o:id)] (o->o o)))
+  (o->t [o:id]
+    (let [o (object/by-id o:id)] (o->t o)))
 
   cljs.core/Keyword
-  (o->t [o:type]
-    (let [os (object/instances-by-type o:type)] (o->t os)))
   (o->b [o:type]
     (let [os (object/instances-by-type o:type)] (o->b os)))
   (o->o [o:type]
-    (let [os (object/instances-by-type o:type)] (o->o os))))
+    (let [os (object/instances-by-type o:type)] (o->o os)))
+  (o->t [o:type]
+    (let [os (object/instances-by-type o:type)] (o->t os))))
 
 
 ;;; tag to object/behavior
