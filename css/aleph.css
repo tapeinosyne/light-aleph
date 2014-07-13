@@ -67,7 +67,7 @@
 
 .aleph-browser .aleph-filter .filter-list > ul {
   max-height: 100%;
-  overflow: scroll;
+  overflow: auto;
 }
 
 .aleph-browser .aleph-filter .filter-list > ul > li {
