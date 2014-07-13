@@ -1,11 +1,10 @@
 (ns lt.plugins.aleph.browser
-  (:require [lt.plugins.aleph.bot :as bot]
-            [lt.object :as object]
+  (:require [lt.object :as object]
             [lt.objs.command :as cmd]
             [lt.objs.sidebar.command :as fl]
             [lt.objs.tabs :as tab]
-            [lt.objs.notifos :as notifos]
-            [lt.util.dom :as dom])
+            [lt.plugins.aleph.selector :as sel]
+            [lt.plugins.aleph.bot :as bot])
   (:require-macros [lt.macros :refer [behavior defui]]))
 
 
@@ -15,34 +14,14 @@
 ;;;; Searchable lists to be displayed in the Aleph browser.
 ;;;;___________________________________________________________________________
 
-;;;; single-item query emphasis
-
-(defn index->node [this i] (nth (:lis @this) i))
-
-(defn remove-active-query [sel]
-  (let [old (:active-query @sel)]
-    (when old
-      (dom/remove-class (index->node sel old) :active-query))
-    (object/assoc-in! sel [:active-query] nil)))
-
-(defn emphasize-active-query [sel]
-  (let [new (:selected @sel)]
-    (remove-active-query sel)
-    (object/merge! sel {:active-query new})
-    (dom/add-class (index->node sel new) :active-query)))
-
-(behavior ::de-emphasize-query
-          :triggers #{:refresh! :re-list}
-          :reaction (fn [this] (remove-active-query this)))
-
 ;;; propagation
 
 (defn extract-keys
   "Given an Aleph filter-list, extracts the current results into a list
-   of items compatible with relator functions."
-  [f-l]
-  (let [cur (:cur @f-l)
-        k (::relate-by @f-l)]
+  of items compatible with relator functions."
+  [sel]
+  (let [cur (:cur @sel)
+        k (:relate-by @sel)]
     (map k (filter map? (apply concat cur)))))
 
 (defn propagate! [super observed & [force?]]
@@ -52,138 +31,26 @@
 (behavior ::update-sub
           :triggers #{:refresh!}
           :reaction (fn [this]
-                      (object/merge! this {:cur (fl/indexed-results @this)})
-                      (fl/fill-lis @this
-                                   (:cur @this))
-                        (let [super (:super @this)
-                              observed (extract-keys this)]
-                          (propagate! super observed))))
-
-(behavior ::re-list
-          :triggers #{:re-list}
-          :reaction (fn [this]
-                      (object/merge! this {:cur (fl/indexed-results @this)})
-                      (fl/fill-lis @this (:cur @this))))
-
-(behavior ::reset!
-          :triggers #{:reset!}
-          :reaction (fn [this & [notify?]]
-                      (let [enlist (::list-fn @this)
-                            starter (::starter-items @this)]
-                        (object/merge! this {:items (enlist (starter))})
-                        (object/raise this :re-list)
-                        (when notify?
-                          (notifos/set-msg! (str "Aleph Browser: refreshed "
-                                                 (if-let [s (:msg notify?)]
-                                                   s
-                                                   (clojure.string/lower-case (:placeholder @this)))
-                                                 " list"))))))
+                      (sel/fill-list this)
+                      (let [super (:super @this)
+                            observed (extract-keys this)]
+                        (propagate! super observed))))
 
 (behavior ::propagate-selection!
           :triggers #{:select}
           :reaction (fn [this item]
                       (let [super (:super @this)
-                            relator (::relate-by @this)
+                            relator (:relate-by @this)
                             observed [(relator item)]]
                         (propagate! super observed :from-selection)
-                        (emphasize-active-query this))))
-
-
-;;; search modes
-
-(defn change-search-mode [flist new-mode]
-  (object/merge! flist new-mode))
-
-(behavior ::search-by
-          :triggers #{:search-by}
-          :reaction (fn [this search-mode]
-                      (change-search-mode this search-mode)
-                      (emphasize-mode this search-mode)))
-
-(def css-mode-prefix "aleph-browser_search-by-")
-
-(defn mode-priority-< [x y]
-  (let [x-priority (::priority x)
-        y-priority (::priority y)
-        comparison (compare x-priority y-priority)]
-    (if-not (= comparison 0)
-      comparison
-      (compare x y))))
-
-
-;;; aleph filter-list GUI elements
-
-(defn opposite-mode [selector new-mode]
-  (let [search-modes (::modes @selector)]
-    (first (disj search-modes new-mode))))
-
-(defn ->str-id [val-id] (str "#" val-id))
-
-(defn emphasize-mode [selector mode]
-  (let [active-id (::css-sel mode)
-        inactive-id (::css-sel (opposite-mode selector mode))
-        inactive-sel (->str-id inactive-id)
-        active-sel (->str-id active-id)]
-    (dom/remove-class (dom/$ inactive-sel) :current-mode)
-    (dom/add-class (dom/$ active-sel) :current-mode)))
-
-(defn ->class-str [& strings]
-  (->> (into [] strings)
-       (filter identity)
-       (interpose " ")
-       (apply str)))
-
-(defui search-mode-button [this {:keys [::display-key ::css-sel ::priority] :as mode}]
-  [:div {:id css-sel
-         :class (->class-str "button" "mode-selector" (if (= 0 priority)
-                                                        "current-mode"))}
-   display-key]
-  :click (fn []
-           (object/raise this :search-by mode)))
-
-(defui reset-button [this]
-  [:div.button.reset "refresh"]
-  :click (fn [] (object/raise this :reset! true)))
-
-
-;;; aleph filter-list object and constructor
-
-(object/object* ::selector
-                :tags #{:filter-list :aleph.selector}
-                :selected 0
-                :placeholder "search"
-                :items []
-                :search ""
-                :init (fn [this opts]
-                        (let [opts (merge {:size 100} opts)
-                              items (for [coll (range (:size opts))]
-                                      (fl/item this coll))
-                              mode-buttons (if-let [modes (::modes opts)]
-                                             (map #(search-mode-button this %) modes))]
-                          (object/merge! this (merge {:lis (vec items)} opts))
-                          [:div.filter-list.empty
-                           [:div.flex-row
-                            (fl/input this)
-                            (reset-button this)
-                           ]
-                           (if mode-buttons
-                             [:div.mode-selection
-                              mode-buttons])
-                           [:ul
-                            items]
-                           ])))
-
-(defn selector [opts]
-  (let [sel (object/create ::selector opts)]
-    (object/raise sel :re-list)
-    sel))
+                        (sel/emphasize-active-query this))))
 
 
 ;;; behavior filter-list
 
 (defn b-enlist [bs]
-  (map #(hash-map ::name-key (str (:name %))
-                  ::triggers-key (str (:triggers %))
+  (map #(hash-map :name-key (str (:name %))
+                  :triggers-key (str (:triggers %))
                   :name (:name %)
                   :triggers (:triggers %))
        (vals bs)))
@@ -197,33 +64,33 @@
     (str "<h2>" (:name item) "</h2><p>" highlighted "</p>")))
 
 (def b-search-modes
-  (sorted-set-by mode-priority-<
-                 {:key ::name-key
+  (sorted-set-by sel/mode-priority-<
+                 {:key :name-key
                   :transform (b-itemize-with-name)
-                  ::display-key "by name"
-                  ::css-sel (str css-mode-prefix "name")
-                  ::priority 0}
-                 {:key ::triggers-key
+                  :display-key "by name"
+                  :css-sel (str sel/css-mode-prefix "name")
+                  :priority 0}
+                 {:key :triggers-key
                   :transform (b-itemize-with-triggers)
-                  ::display-key "by trigger"
-                  ::css-sel (str css-mode-prefix "trigger")
-                  ::priority 1}))
+                  :display-key "by trigger"
+                  :css-sel (str sel/css-mode-prefix "trigger")
+                  :priority 1}))
 
-(def b-list (selector {:items (fn [] (b-enlist @object/behaviors))
-                       :key ::name-key
+(def b-list (sel/selector {:items (fn [] (b-enlist @object/behaviors))
+                       :key :name-key
                        :transform (b-itemize-with-name)
                        :placeholder "Behavior"
-                       ::modes b-search-modes
-                       ::relate-by :name
-                       ::list-fn b-enlist
-                       ::starter-items (fn [] @object/behaviors)}))
+                       :modes b-search-modes
+                       :relate-by :name
+                       :enlist-with b-enlist
+                       :starter-items (fn [] @object/behaviors)}))
 
 
 ;;; object filter-list
 
 (defn o-enlist [os]
-  (map #(hash-map ::type-key (-> @% :lt.object/type str)
-                  ::id-key (-> @% :lt.object/id str)
+  (map #(hash-map :type-key (-> @% :lt.object/type str)
+                  :id-key (-> @% :lt.object/id str)
                   :lt.object/type (-> @% :lt.object/type)
                   :lt.object/id (-> @% :lt.object/id)
                   :tags (-> @% :tags)
@@ -239,32 +106,32 @@
     (str "<h2>" (:lt.object/type item) "</h2><p>" highlighted "</p>")))
 
 (def o-search-modes
-  (sorted-set-by mode-priority-<
-                 {:key ::type-key
+  (sorted-set-by sel/mode-priority-<
+                 {:key :type-key
                   :transform (o-itemize-with-type)
-                  ::display-key "by type"
-                  ::css-sel (str css-mode-prefix "type")
-                  ::priority 0}
-                 {:key ::id-key
+                  :display-key "by type"
+                  :css-sel (str sel/css-mode-prefix "type")
+                  :priority 0}
+                 {:key :id-key
                   :transform (o-itemize-with-id)
-                  ::display-key "by id"
-                  ::css-sel (str css-mode-prefix "id")
-                  ::priority 1}))
+                  :display-key "by id"
+                  :css-sel (str sel/css-mode-prefix "id")
+                  :priority 1}))
 
-(def o-list (selector {:items (fn [] (o-enlist @object/instances))
-                       :key ::type-key
+(def o-list (sel/selector {:items (fn [] (o-enlist @object/instances))
+                       :key :type-key
                        :transform (o-itemize-with-type)
                        :placeholder "Object"
-                       ::modes o-search-modes
-                       ::relate-by :lt.object/id
-                       ::list-fn o-enlist
-                       ::starter-items (fn [] @object/instances)}))
+                       :modes o-search-modes
+                       :relate-by :lt.object/id
+                       :enlist-with o-enlist
+                       :starter-items (fn [] @object/instances)}))
 
 
 ;;; tag filter-list
 
 (defn t-enlist [ts]
-  (map #(hash-map ::tag-key (str (key %))
+  (map #(hash-map :tag-key (str (key %))
                   :tag (key %)
                   :behaviors (val %))
        ts))
@@ -273,13 +140,13 @@
   (fn [original scored highlighted item]
     (str "<h2>" highlighted "</h2><p>" (:behaviors item) "</p>")))
 
-(def t-list (selector {:items (fn [] (t-enlist @object/tags))
-                       :key ::tag-key
+(def t-list (sel/selector {:items (fn [] (t-enlist @object/tags))
+                       :key :tag-key
                        :transform (t-itemize)
                        :placeholder "Tag"
-                       ::relate-by :tag
-                       ::list-fn t-enlist
-                       ::starter-items (fn [] @object/tags)}))
+                       :relate-by :tag
+                       :enlist-with t-enlist
+                       :starter-items (fn [] @object/tags)}))
 
 
 ;;;;===========================================================================
@@ -308,11 +175,15 @@
           :reaction (fn [this tail obs]
                       (let [selector (:selector @this)
                             items (:items @selector)
-                            enlist (::list-fn @selector)
+                            enlist (:enlist-with @selector)
                             head (:element @this)
                             related (bot/relate obs tail head)]
                         (object/merge! selector {:items (enlist related)})
                         (object/raise selector :re-list))))
+
+(defn refresh! []
+  (doseq [sub (vals subspaces)]
+    (object/raise (:selector @sub) :reset! {:msg "every"})))
 
 
 ;;; sub objects
@@ -322,16 +193,15 @@
                 :element nil
                 :observing []
                 :selector {}
-                :init (fn [this {:keys [el sel] :as opts}]
-                        (object/merge! this {:element el
-                                             :selector sel})
+                :init (fn [this opts]
+                        (object/merge! this opts)
                         ;; This could be done without circularity, but this is
                         ;; the Aleph, after all.
-                        (object/merge! sel {:super this})))
+                        (object/merge! (:selector opts) {:super this})))
 
 (defn ->sub [el sel]
-  (object/create ::sub {:el el
-                        :sel sel}))
+  (object/create ::sub {:element el
+                        :selector sel}))
 
 (def b-sub (->sub :b b-list))
 (def o-sub (->sub :o o-list))
@@ -353,7 +223,7 @@
           :reaction (fn [this]
                       (tab/rem! this)))
 
-(object/object* ::aleph.browser
+(object/object* ::browser
                 :tags #{:aleph.browser}
                 :name "Aleph"
                 :init (fn [this]
@@ -364,19 +234,14 @@
                           [:div#aleph-objects.aleph-filter
                            (object/->content o-list)]
                           [:div#aleph-tags.aleph-filter
-                           (object/->content t-list)]
-                          ]
-                         ]))
+                           (object/->content t-list)]]]))
 
-(def browser (object/create ::aleph.browser))
+(def browser (object/create ::browser))
 
 (cmd/command {:command :aleph.browse
               :desc "Aleph: open browser"
-              :exec (fn []
-                      (tab/add-or-focus! browser))})
+              :exec (fn [] (tab/add-or-focus! browser))})
 
 (cmd/command {:command :aleph.browser.refresh
               :desc "Aleph: refresh browser"
-              :exec (fn []
-                      (doseq [sub (vals subspaces)]
-                        (object/raise (:selector @sub) :reset! {:msg "every"})))})
+              :exec (fn [] (refresh!))})
