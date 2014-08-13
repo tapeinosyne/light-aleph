@@ -111,7 +111,7 @@
                 :items []
                 :search ""
                 :init (fn [this opts]
-                        (let [opts (merge {:size 100} opts)
+                        (let [opts (merge {:size 32} opts)
                               items (for [coll (range (:size opts))]
                                       (fl/item this coll))
                               mode-buttons (if-let [modes (:modes opts)]
