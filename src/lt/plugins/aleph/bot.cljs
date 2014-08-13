@@ -220,16 +220,16 @@
 ;;; existance
 
 (defn b? [bs]
-  (seq? (b->b bs)))
+  (not (empty? (b->b bs))))
 
 (defn o? [os]
-  (seq? (o->o os)))
+  (not (empty? (o->o os))))
 
 (defn t? [ts]
-  (seq? (t->t ts)))
+  (not (empty? (t->t ts))))
 
 (defn trigger? [triggers]
-  (seq? (triggers->behaviors triggers)))
+  (not (empty? (triggers->behaviors triggers))))
 
 
 ;;; dispatcher
