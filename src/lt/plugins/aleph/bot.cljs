@@ -177,11 +177,12 @@
 
 ;;;;===========================================================================
 ;;;; API
+;;;; BOT addenda
 ;;;;
 ;;;; Additional facilities for querying BOT.
 ;;;;___________________________________________________________________________
 
-;;; triggers
+;;;; triggers
 
 (defn any-triggers? [triggers b]
   (some triggers (:triggers (val b))))
@@ -216,8 +217,7 @@
   [triggers]
   (-> triggers triggers->behaviors keys b->t))
 
-
-;;; existance
+;;;; existance
 
 (defn b? [bs]
   (not (empty? (b->b bs))))
@@ -231,6 +231,13 @@
 (defn trigger? [triggers]
   (not (empty? (triggers->behaviors triggers))))
 
+
+;;;;===========================================================================
+;;;; API
+;;;; Convenience
+;;;;
+;;;; Additional facilities for querying BOT.
+;;;;___________________________________________________________________________
 
 ;;; dispatcher
 
