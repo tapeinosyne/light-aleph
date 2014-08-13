@@ -232,6 +232,20 @@
   (not (empty? (triggers->behaviors triggers))))
 
 
+;;;; behavior
+
+(defn b:fname [b & [qualified?]]
+  (let [b:name (:name (b @object/behaviors))
+        ns-str (if qualified? (str (namespace b) "/"))]
+    (if b:name
+      (symbol (str ns-str "__BEH__"
+                   (clojure.string/replace (name b:name) #"\." "__DOT__"))))))
+
+(defn b:reaction [b]
+  (if-let [beh (b @object/behaviors)]
+    (:reaction beh)))
+
+
 ;;;;===========================================================================
 ;;;; API
 ;;;; Convenience
