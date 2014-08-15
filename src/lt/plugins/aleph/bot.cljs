@@ -199,6 +199,21 @@
                       any-triggers?
                       trigger-set)))
 
+(defn triggered-by [trig bs]
+  (into [] (filter #(contains? (:triggers %) trig) bs)))
+
+(defn behaviors->triggers
+  "Given a behavior or a sequence thereof, returns a map of triggers which launch
+   any of them.
+   Keys are trigger names, associated to their full list of bound behaviors."
+  [bs]
+  (let [b-vals (-> bs ->set b->b vals)
+        b-indexed (vals @object/behaviors)
+        trigs (mapcat :triggers b-vals)]
+    (into {} (map (fn [trig] [trig (triggered-by trig b-indexed)])
+                  trigs))))
+
+
 (defn triggers->objects
   "Given a trigger or a sequence thereof, returns a map of objects listening
    for any of them.
@@ -208,6 +223,13 @@
   [triggers]
   (-> triggers ->set triggers->behaviors keys b->o))
 
+(defn objects->triggers
+  "Given an object or a sequence thereof, returns a map of triggers bound to
+   their behaviors.
+   Keys are trigger names, associated to their full list of bound behaviors."
+  [os]
+  (->> (->set os) o->o vals (map #(:listeners @%))))
+
 (defn triggers->tags
   "Given a trigger or a sequence thereof, returns a map of tags attaching
    behaviors which listen for any of them.
@@ -216,6 +238,15 @@
    The returned map is a subset of the `object/tags` index."
   [triggers]
   (-> triggers triggers->behaviors keys b->t))
+
+(defn tags->triggers
+  "Given a tag or a sequence thereof, returns a map of triggers which launch
+   any of the behaviors associated to those tags.
+   Keys are trigger names, associated to their full list of bound behaviors."
+  [ts]
+  (let [bs (keys (t->b ts))]
+    (behaviors->triggers bs)))
+
 
 ;;;; existance
 
