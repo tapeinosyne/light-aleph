@@ -111,7 +111,7 @@
   (o->b [o]
     (let [bs (flat-listeners o)] (select-keys @object/behaviors bs)))
   (o->o [o]
-    (let [id (:lt.object/id @o)] (select-keys @object/instances id)))
+    (let [id (:lt.object/id @o)] (select-keys @object/instances [id])))
   (o->t [o]
     (let [ts (:tags @o)] (select-keys @object/tags ts)))
 
@@ -119,7 +119,7 @@
   (o->b [o:id]
     (let [o (object/by-id o:id)] (o->b o)))
   (o->o [o:id]
-    (let [o (object/by-id o:id)] (o->o o)))
+    (select-keys @object/instances [o:id]))
   (o->t [o:id]
     (let [o (object/by-id o:id)] (o->t o)))
 
