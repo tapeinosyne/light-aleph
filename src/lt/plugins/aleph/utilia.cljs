@@ -15,7 +15,7 @@
 (defn atom? [x]
   (satisfies? IDeref x))
 
-(defn if-deref [x]
+(defn if-at [x]
   (if (atom? x)
     @x
     x))
