@@ -1,6 +1,7 @@
 (ns lt.plugins.aleph.bot
   (:require [clojure.set :as setop]
-            [lt.object :as object]))
+            [lt.object :as object]
+            [lt.plugins.aleph.utilia :refer [deep-merge]]))
 
 
 ;;;;===========================================================================
@@ -287,9 +288,16 @@
 ;;; dispatcher
 
 (def relators
-  {:b {:b b->b  :o b->o  :t b->t}
-   :o {:b o->b  :o o->o  :t o->t}
-   :t {:b t->b  :o t->o  :t t->t}})
+  (deep-merge {:b {:b b->b  :o b->o  :t b->t}
+               :o {:b o->b  :o o->o  :t o->t}
+               :t {:b t->b  :o t->o  :t t->t}}
+
+              {:b {:trigger behaviors->triggers}
+               :o {:trigger   objects->triggers}
+               :t {:trigger      tags->triggers}
+               :trigger  {:b triggers->behaviors
+                          :o triggers->objects
+                          :t triggers->tags}}))
 
 (defn relate
   "Identifies associations between BOT elements.
