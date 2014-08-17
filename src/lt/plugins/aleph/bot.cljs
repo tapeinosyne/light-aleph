@@ -224,12 +224,18 @@
   [triggers]
   (-> triggers ->set triggers->behaviors keys b->o))
 
+(defn merge-triggered [x y]
+  (merge-with #(into [] (distinct (apply conj %1 %2)))
+              x y))
+
 (defn objects->triggers
   "Given an object or a sequence thereof, returns a map of triggers bound to
    their behaviors.
    Keys are trigger names, associated to their full list of bound behaviors."
   [os]
-  (->> (->set os) o->o vals (map #(:listeners @%))))
+  (->> (->set os) o->o vals
+       (map #(:listeners @%))
+       (reduce merge-triggered)))
 
 (defn triggers->tags
   "Given a trigger or a sequence thereof, returns a map of tags attaching
