@@ -285,6 +285,8 @@
 ;;;; Additional facilities for querying BOT.
 ;;;;___________________________________________________________________________
 
+(def elements #{:b :o :t :trigger})
+
 ;;; dispatcher
 
 (def relators
