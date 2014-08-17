@@ -310,6 +310,7 @@
    Tail and head are keywords, and can be:
    - `:b` for behaviors,
    - `:o` for objects,
-   - `:t` for tags."
+   - `:t` for tags,
+   - `:trigger` for triggers."
   [elems tail head]
   ((-> relators tail head) elems))
