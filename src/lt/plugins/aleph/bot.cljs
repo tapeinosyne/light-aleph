@@ -119,12 +119,9 @@
   (o->t [o] (let [ts (:tags o)] (select-keys @object/tags ts)))
 
   cljs.core/Atom
-  (o->b [o]
-    (let [bs (flat-listeners o)] (select-keys @object/behaviors bs)))
-  (o->o [o]
-    (let [id (:lt.object/id @o)] (select-keys @object/instances [id])))
-  (o->t [o]
-    (let [ts (:tags @o)] (select-keys @object/tags ts)))
+  (o->b [o] (let [bs (flat-listeners @o)] (select-keys @object/behaviors bs)))
+  (o->o [o] (let [id (:lt.object/id @o)] (select-keys @object/instances [id])))
+  (o->t [o] (let [ts (:tags @o)] (select-keys @object/tags ts)))
 
   number
   (o->b [o:id]
