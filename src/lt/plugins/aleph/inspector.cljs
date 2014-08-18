@@ -135,7 +135,6 @@
 ;;;;
 ;;;; Inline widget which displays the current BOT configuration of an object,
 ;;;; tag, behavior, or trigger.
-;;;;
 ;;;;___________________________________________________________________________
 
 ;;;; symbol resolution
