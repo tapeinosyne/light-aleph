@@ -285,6 +285,7 @@
         triggers (:triggers (val beh))
         trigger-str (space-separate triggers)
         sels (selectors-for (merge opts {:parent this}))]
+    (object/merge! this {:selectors sels})
     (crate/html
      [:div
       [:div.inspector-header
@@ -299,6 +300,7 @@
         tags (:tags @(val obj))
         o-type (:lt.object/type @(val obj))
         sels (selectors-for (merge opts {:parent this}))]
+    (object/merge! this {:selectors sels})
     (crate/html
      [:div
       [:div.inspector-header
@@ -309,6 +311,7 @@
 (defmethod template-with :t
   [this {:keys [sym] :as opts}]
   (let [sels (selectors-for (merge opts {:parent this}))]
+    (object/merge! this {:selectors sels})
     (crate/html
      [:div
       [:div.inspector-header
@@ -321,12 +324,15 @@
 (defui close-button [this]
   [:span.tab-close "x"]
   :click (fn [] (.clear (:widget @this))
+                (doseq [sel (:selectors @this)]
+                  (object/destroy! sel))
                 (object/destroy! this)))
 
 (object/object* ::inspector
                 :tags #{:aleph.inspector}
                 :widget nil
                 :subject nil
+                :selectors nil
                 :init (fn [this opts]
                         (object/merge! this {:subject opts})
                         [:div.aleph.inspector
