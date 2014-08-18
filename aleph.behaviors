@@ -1,5 +1,6 @@
 {:+ {:app [(:lt.objs.plugins/load-js "aleph_compiled.js")
-           (:lt.objs.plugins/load-css "css/aleph.css")]
+           (:lt.objs.plugins/load-css "css/browser.css")
+           (:lt.objs.plugins/load-css "css/inspector.css")]
 
      :aleph.browser [:lt.plugins.aleph.browser/on-close]
 
