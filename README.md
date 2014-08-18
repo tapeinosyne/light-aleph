@@ -36,7 +36,7 @@ During a search, you are free to move between lists and narrow the results down 
 Selecting an entry will display results for that entry and that entry only.
 
 #### Refreshing
-Aleph lists will automatically refresh when you clear the input field. You can also refresh a list manually, mid-search, by clicking the refresh button ⟳.
+Aleph lists will automatically refresh when you clear the input field. You can also refresh a list manually, mid-search, by clicking the refresh button `⟳`.
 
 To refresh all lists at once, you can use the command `Aleph: refresh browser`.
 
