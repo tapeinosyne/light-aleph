@@ -2,18 +2,15 @@
   (:require [cljs.reader :as reader]
             [crate.core :as crate]
             [crate.binding :refer [bound subatom]]
-            [lt.util.dom :as dom]
             [lt.object :as object]
             [lt.objs.command :as cmd]
-            [lt.objs.sidebar.command :as fl]
             [lt.objs.notifos :as notifos]
             [lt.objs.editor :as ed]
             [lt.objs.editor.pool :as pool]
             [lt.plugins.clojure :as clj]
             [lt.plugins.uicommons.selector :as sel]
             [lt.plugins.aleph.utilia :as utl :refer [atom? if-at]]
-            [lt.plugins.aleph.bot :as bot]
-            [lt.plugins.aleph.browser :as browser])
+            [lt.plugins.aleph.bot :as bot])
   (:require-macros [lt.macros :refer [behavior defui]]))
 
 
