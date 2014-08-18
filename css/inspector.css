@@ -1,0 +1,59 @@
+.CodeMirror-linewidget .aleph.inspector {
+  position: relative;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+  align-content: flex-start;
+  align-items: stretch;
+
+  padding: 0.5rem;
+  margin: 0.5rem;
+
+  border-top: 1px solid var(accent-background);
+  border-bottom: 1px solid var(accent-background);
+
+  background: rgba(127,127,127,0.075);
+}
+
+.CodeMirror-linewidget .aleph.inspector .tab-close {
+  position: absolute;
+
+  width: 2ch;
+  height: 2ch;
+  padding: 0 5px;
+  border-radius: 2px;
+}
+
+.CodeMirror-linewidget .aleph.inspector .selectors {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.CodeMirror-linewidget .aleph.inspector .selectors .filter-list.uicommons_selector {
+  flex: 0 0 48%;
+}
+
+.CodeMirror-linewidget .aleph.inspector .selectors .filter-list.uicommons_selector ul {
+  max-height: 320px;
+  overflow: auto;
+}
+
+.CodeMirror-linewidget .aleph.inspector .selectors .filter-list.uicommons_selector li {
+  margin: 0.25rem 0 0.25rem 0;
+}
+
+.CodeMirror-linewidget .aleph.inspector .inspector-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.CodeMirror-linewidget .aleph.inspector .inspector-header .element-id {
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.CodeMirror-linewidget .aleph.inspector .inspector-header > .el-addendum {
+  font-size: 0.75rem;
+}
