@@ -267,7 +267,7 @@
 (behavior ::log-subject
           :triggers #{:log-subject}
           :reaction (fn [this subj]
-                      (object/update! this [:history] conj {:subject subj})))
+                      (object/update! this [:history] conj subj)))
 
 (behavior ::inspect
           :triggers #{:aleph.inspect}
