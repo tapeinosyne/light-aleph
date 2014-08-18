@@ -69,11 +69,11 @@
 
 ;;;; custom evaluation
 
-(defn fnstr [args]
+(defn space-separate [args]
   (apply str (interpose " " args)))
 
 (defn wrap-fnstr [args]
-  (str "(" (fnstr args) ")"))
+  (str "(" (space-separate args) ")"))
 
 (defn raise-eval [this & args]
   (let [fnstring (wrap-fnstr args)]
