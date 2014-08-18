@@ -2,5 +2,6 @@
  :version "0.2.0-SNAPSHOT"
  :author "ndr-qef"
  :source "https://github.com/ndr-qef/light-aleph"
- :desc "A BOT browser and introspector. "
+ :desc "A BOT browser and introspector."
+ :dependencies [["UICommons" "0.0.2-SNAPSHOT"]]
  :behaviors "aleph.behaviors"}
