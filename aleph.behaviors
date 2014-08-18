@@ -20,6 +20,10 @@
      :editor.cljs [:lt.plugins.aleph.inspector/eval-relate
                    :lt.plugins.aleph.inspector/inspect
                    :lt.plugins.aleph.inspector/inspect-resolved
-                   :lt.plugins.aleph.inspector/resolve]}
+                   :lt.plugins.aleph.inspector/resolve]
+
+     :aleph.monitor [:lt.plugins.aleph.monitor/inject!
+                     :lt.plugins.aleph.monitor/log!]
+     :aleph.monitor-aggregator [:lt.plugins.aleph.monitor/dispatch!]}
 
  :- {:aleph.selector [:lt.objs.sidebar.command/update-lis]}}
