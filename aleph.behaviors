@@ -12,6 +12,14 @@
                       :lt.plugins.aleph.selector/de-emphasize-query
                       :lt.plugins.aleph.selector/re-list
                       :lt.plugins.aleph.selector/reset!
-                      :lt.plugins.aleph.selector/search-by]}
+                      :lt.plugins.aleph.selector/search-by]
+
+     :aleph.inline-selector [:lt.plugins.aleph.inspector/reload-parent!]
+     :aleph.inspector [:lt.plugins.aleph.inspector/set-subject!]
+
+     :editor.cljs [:lt.plugins.aleph.inspector/eval-relate
+                   :lt.plugins.aleph.inspector/inspect
+                   :lt.plugins.aleph.inspector/inspect-resolved
+                   :lt.plugins.aleph.inspector/resolve]}
 
  :- {:aleph.selector [:lt.objs.sidebar.command/update-lis]}}
