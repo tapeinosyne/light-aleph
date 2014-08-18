@@ -235,6 +235,12 @@
         beh-sel (behavior-selector parent (bot/t->b sym))]
     [obj-sel beh-sel]))
 
+(defmethod selectors-for :trigger
+  [{:keys [sym parent]}]
+  (let [obj-sel (object-selector parent (bot/triggers->objects sym))
+        beh-sel (behavior-selector parent (bot/triggers->behaviors sym))]
+    [obj-sel beh-sel]))
+
 
 (behavior ::reload-parent!
           :triggers #{:select}
@@ -315,6 +321,16 @@
      [:div
       [:div.inspector-header
        [:h1.element-id "tag " [:span.bot-element.cm-atom sym]]]
+      [:div.selectors (map object/->content sels)]])))
+
+(defmethod template-with :trigger
+  [this {:keys [sym] :as opts}]
+  (let [sels (selectors-for (merge opts {:parent this}))]
+    (object/merge! this {:selectors sels})
+    (crate/html
+     [:div
+      [:div.inspector-header
+       [:h1.element-id "trigger " [:span.bot-element.cm-atom sym]]]
       [:div.selectors (map object/->content sels)]])))
 
 (defmethod template-with :default [_ _]) ; destruction triggers a re-template.
