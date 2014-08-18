@@ -33,11 +33,13 @@
 
 (defn notify-nonbot [sym]
   (notifos/set-msg! (str "`" sym "`" " appears not to be a BOT element.")
-                    {:class "error"}))
+                    {:class "error"})
+  nil)
 
 (defn discern-keyword [sym]
   (condp #(%1 %2) sym
     bot/b?       :b
+    bot/o?       :o
     bot/t?       :t
     bot/trigger? :trigger
     (notify-nonbot sym)))
@@ -46,8 +48,7 @@
   (condp #(%1 %2) sym
     number?  :o
     symbol?  :o
-    keyword? (discern-keyword sym)
-    (notify-nonbot sym)))
+    keyword? (discern-keyword sym)))
 
 (defn discern-element-at-cursor [editor]
   (discern-element (read-token-at-cursor editor)))
