@@ -1,7 +1,7 @@
 (ns lt.plugins.aleph.bot
   (:require [clojure.set :as setop]
             [lt.object :as object]
-            [lt.plugins.aleph.utilia :refer [deep-merge]]))
+            [lt.plugins.aleph.utilia :refer [deep-merge if-at]]))
 
 
 ;;;;===========================================================================
@@ -21,7 +21,7 @@
     b))
 
 (defn flat-listeners [o]
-  (->> @o :listeners vals (apply concat)))
+  (->> (if-at o) :listeners vals (apply concat)))
 
 (defn select-keys-with [map pred xs]
   (into {} (filter (partial pred xs) map)))
@@ -108,6 +108,16 @@
   (o->o [os] (mapcat-rel o->o os))
   (o->t [os] (mapcat-rel o->t os))
 
+  cljs.core/PersistentArrayMap
+  (o->b [o] (let [bs (flat-listeners o)] (select-keys @object/behaviors bs)))
+  (o->o [o] (let [id (:lt.object/id o)] (select-keys @object/instances [id])))
+  (o->t [o] (let [ts (:tags o)] (select-keys @object/tags ts)))
+
+  cljs.core/PersistentHashMap
+  (o->b [o] (let [bs (flat-listeners o)] (select-keys @object/behaviors bs)))
+  (o->o [o] (let [id (:lt.object/id o)] (select-keys @object/instances [id])))
+  (o->t [o] (let [ts (:tags o)] (select-keys @object/tags ts)))
+
   cljs.core/Atom
   (o->b [o]
     (let [bs (flat-listeners o)] (select-keys @object/behaviors bs)))
@@ -126,11 +136,17 @@
 
   cljs.core/Keyword
   (o->b [o:type]
-    (let [os (object/instances-by-type o:type)] (o->b os)))
+    (let [instances (object/instances-by-type o:type)
+          os (if (seq instances) instances (o:type @object/object-defs))]
+      (if os (o->b os) {})))
   (o->o [o:type]
-    (let [os (object/instances-by-type o:type)] (o->o os)))
+    (let [instances (object/instances-by-type o:type)
+          os (if (seq instances) instances (o:type @object/object-defs))]
+      (if os (o->o os) {})))
   (o->t [o:type]
-    (let [os (object/instances-by-type o:type)] (o->t os))))
+    (let [instances (object/instances-by-type o:type)
+          os (if (seq instances) instances (o:type @object/object-defs))]
+      (if os (o->t os) {}))))
 
 
 ;;; tag to object/behavior
@@ -261,7 +277,10 @@
   (not (empty? (b->b bs))))
 
 (defn o? [os]
-  (not (empty? (o->o os))))
+  (or (not (empty? (o->o os)))
+      (not (empty? (->> (->set os)
+                        (map @object/object-defs)
+                        (filter identity))))))
 
 (defn t? [ts]
   (not (empty? (t->t ts))))
