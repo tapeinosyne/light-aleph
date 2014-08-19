@@ -5,7 +5,7 @@
             [lt.object :as object]
             [lt.objs.command :as cmd]
             [lt.objs.notifos :as notifos]
-            [lt.objs.editor :as ed]
+            [lt.objs.editor :as editor]
             [lt.objs.editor.pool :as pool]
             [lt.plugins.clojure :as clj]
             [lt.plugins.uicommons.selector :as sel]
@@ -359,7 +359,10 @@
               :desc "Aleph: inspect element at cursor"
               :exec (fn []
                       (let [ed (pool/last-active)
-                            sym (read-token-at-cursor ed)]
+                            cursor (editor/->cursor ed)
+                            token-type (editor/->token-type ed cursor)
+                            sym (if-not (= "string" token-type)
+                                  (read-token-at-cursor ed))]
                         (if sym
                           (object/raise ed :resolve sym)
                           (notifos/set-msg! "Could not find symbol at cursor"))))})
