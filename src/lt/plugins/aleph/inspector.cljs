@@ -25,7 +25,7 @@
 
 
 (defn read-token [token]
-  (cljs.reader/read-string (:string token)))
+  (if token (cljs.reader/read-string (:string token))))
 
 (defn read-token-at-cursor [editor]
   (read-token (clj/find-symbol-at-cursor editor)))
@@ -360,4 +360,6 @@
               :exec (fn []
                       (let [ed (pool/last-active)
                             sym (read-token-at-cursor ed)]
-                        (object/raise ed :resolve sym)))})
+                        (if sym
+                          (object/raise ed :resolve sym)
+                          (notifos/set-msg! "Could not find symbol at cursor"))))})
